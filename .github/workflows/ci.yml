@@ -1,0 +1,83 @@
+# Every push and pull request: the Rust checks and tests on Linux, and the page's scripts read by
+# Node (a syntax error stops the window from drawing at all). The desktop app itself is built on
+# Windows and macOS when run by hand (Actions → CI → Run workflow), and by every release.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    name: fmt, clippy, tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo fmt
+        run: cargo fmt --all --check
+      - name: cargo clippy
+        run: cargo clippy -p rosterflow-core -p rosterflow-api -p rosterflow-dev --all-targets
+      - name: cargo test
+        run: cargo test -p rosterflow-core -p rosterflow-api
+
+  page:
+    name: the page's scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Every module parses
+        run: |
+          for f in $(find ui/js -name '*.js'); do node --check "$f" || exit 1; done
+
+  app:
+    name: desktop app (${{ matrix.name }})
+    if: github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            args: ""
+          - name: macOS
+            os: macos-latest
+            args: "--target aarch64-apple-darwin"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build the app and its installers
+        working-directory: app
+        run: npx --yes @tauri-apps/cli@2 build ${{ matrix.args }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rosterflow-${{ matrix.name }}
+          path: |
+            target/release/bundle/nsis/*.exe
+            target/release/bundle/msi/*.msi
+            target/*/release/bundle/dmg/*.dmg
+          if-no-files-found: ignore

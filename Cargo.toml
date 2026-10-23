@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
-members = ["crates/rosterflow-core", "crates/rosterflow-api", "crates/rosterflow-dev"]
-# (`cargo build` without -p builds the libraries; the desktop app is `cargo build -p rosterflow`)
+members = ["crates/rosterflow-core", "crates/rosterflow-api", "crates/rosterflow-dev", "app"]
+# (`cargo build` without -p builds the libraries and the browser server; the desktop app is `cargo build -p rosterflow`)
 default-members = ["crates/rosterflow-core", "crates/rosterflow-api", "crates/rosterflow-dev"]
 
 [workspace.package]

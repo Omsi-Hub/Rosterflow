@@ -1,0 +1,94 @@
+# RosterFlow's releases: the installers for Windows (x64: an NSIS setup and an MSI) and macOS (one
+# universal app for Apple silicon and Intel), built by Tauri and put in a DRAFT release named
+# after the version (`v<version>`) in this repository. Publish the draft by hand once it is
+# checked.
+#
+# Runs on a pushed tag `v*` (it must be the version in Cargo.toml and app/tauri.conf.json), or by
+# hand (Actions → Release → Run workflow). Run again, it uploads to the same draft.
+#
+# The macOS app is not signed or notarised unless the Apple secrets are set (APPLE_CERTIFICATE,
+# APPLE_CERTIFICATE_PASSWORD, APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD, APPLE_TEAM_ID); the
+# Windows installer is not signed. Without them the installers work all the same: on macOS the
+# first start is with right-click → Open, on Windows SmartScreen asks once.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-latest
+            targets: x86_64-pc-windows-msvc
+            args: ""
+          - name: macOS (universal)
+            os: macos-latest
+            targets: aarch64-apple-darwin,x86_64-apple-darwin
+            args: "--target universal-apple-darwin"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.targets }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-${{ matrix.os }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: The version is the same everywhere
+        shell: bash
+        run: |
+          app=$(node -p "require('./app/tauri.conf.json').version")
+          cargo=$(sed -n '/^\[workspace.package\]/,/^\[/s/^version *= *"\(.*\)"/\1/p' Cargo.toml)
+          if [ "$app" != "$cargo" ]; then
+            echo "::error::app/tauri.conf.json has $app, Cargo.toml has $cargo: make them the same"
+            exit 1
+          fi
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$GITHUB_REF_NAME" != "v$app" ]; then
+            echo "::error::the tag $GITHUB_REF_NAME is not v$app"
+            exit 1
+          fi
+
+      - name: Build and upload to the draft release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: app
+          tauriScript: npx --yes @tauri-apps/cli@2
+          tagName: v__VERSION__
+          releaseName: RosterFlow __VERSION__
+          releaseBody: |
+            RosterFlow __VERSION__: bus scheduling and crew rostering for bus companies.
+
+            - Windows: `RosterFlow_<version>_x64-setup.exe` (or the `.msi` for managed installs)
+            - macOS: `RosterFlow_<version>_universal.dmg` (Apple silicon and Intel). Not notarised unless the Apple secrets are set: the first time, right-click the app and choose Open.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
