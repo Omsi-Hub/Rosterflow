@@ -69,7 +69,7 @@
 .tp-copy .keep input:focus { box-shadow: inset 0 0 0 1.5px var(--tp-sky); }
 .tp-selbar .cut { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Beta 66 (Luc's Beta 65 reports): the context bar giving way so nothing is cut off at its right
+/* The context bar giving way so nothing is cut off at its right
    end (`useBarFit`: fit1 icons and narrower days, fit2 no days, wrap two rows) */
 .tp-bar.fit1 .tp-save, .tp-bar.fit2 .tp-save, .tp-bar.wrap .tp-save { width: 40px; }
 .tp-bar.fit1 .tp-days .d { width: 21px; }

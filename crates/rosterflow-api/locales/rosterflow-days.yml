@@ -51,13 +51,13 @@ _version: 2
   pl: "Zapisano tylko dla %{day}: plan jego dnia tygodnia zostaje bez zmian."
   ru: "Сохранено только для %{day}: план его дня недели остаётся прежним."
   uk: "Збережено лише для %{day}: план його дня тижня лишається як був."
-"Copied to %{days}: the roster, those days and the game run it now.":
-  de: "Kopiert nach %{days}: Dienstplan, diese Tage und das Spiel fahren sie jetzt."
-  fr: "Copié vers %{days} : le roulement, ces jours et le jeu la suivent maintenant."
-  nl: "Gekopieerd naar %{days}: het rooster, die dagen en het spel rijden haar nu."
-  pl: "Skopiowano na %{days}: grafik, te dni i gra działają teraz według niego."
-  ru: "Скопировано на %{days}: график, эти дни и игра теперь работают по нему."
-  uk: "Скопійовано на %{days}: графік, ці дні й гра тепер працюють за ним."
+"Copied to %{days}: the roster and those days run it now.":
+  de: "Kopiert nach %{days}: Dienstplan und diese Tage laufen jetzt danach."
+  fr: "Copié vers %{days} : le roulement et ces jours la suivent maintenant."
+  nl: "Gekopieerd naar %{days}: het rooster en die dagen volgen haar nu."
+  pl: "Skopiowano na %{days}: grafik i te dni działają teraz według niego."
+  ru: "Скопировано на %{days}: график и эти дни теперь работают по нему."
+  uk: "Скопійовано на %{days}: графік і ці дні тепер працюють за ним."
 "%{n} trips matched nothing: they run as their timetable has them, to plan by hand.":
   de: "%{n} Fahrten passten zu nichts: sie fahren, wie ihr Fahrplan sie hat - von Hand zu planen."
   fr: "%{n} courses ne correspondent à rien : elles roulent comme leur horaire les prévoit, à planifier à la main."

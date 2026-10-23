@@ -13,8 +13,8 @@ use super::staff::{self, Block};
 use super::studio::PieceRef;
 use serde::{Deserialize, Serialize};
 
-/// The first id of the booked drivers (the staff's are small numbers; `plan::AGENCY` and
-/// `plan::PLAYER` are the last two): a booking's drivers are `BOOKED_BASE + no * PER_BOOKING + k`.
+/// The first id of the booked drivers (the staff's are small numbers; `plan::AGENCY` is the
+/// last): a booking's drivers are `BOOKED_BASE + no * PER_BOOKING + k`.
 pub const BOOKED_BASE: u32 = 0xA000_0000;
 const PER_BOOKING: u32 = 256;
 /// Drivers in one booking at most (another booking for more).
@@ -62,7 +62,7 @@ pub struct Booking {
     pub hours: Option<(i32, i32)>,
     #[serde(default)]
     pub drivers: Vec<Booked>,
-    /// Paid at its day's close.
+    /// Paid for on its day.
     #[serde(default)]
     pub settled: bool,
     /// The agency it is booked with.
@@ -96,7 +96,7 @@ pub struct Summary {
     pub hours: Option<(i32, i32)>,
     /// The duties given to its drivers.
     pub duties: usize,
-    /// What it costs as booked (the close pays the minutes worked when more).
+    /// What it costs as booked (the minutes worked are paid when more).
     pub cost: Cents,
     /// Its day is closed and it was paid.
     pub settled: bool,

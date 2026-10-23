@@ -104,7 +104,7 @@ fn a_bus_copied_by_itself_takes_its_trips_off_the_buses_there_and_its_lock_along
     // (Tuesday's duties as they were: only the bus copied)
     assert!(!c.planning.joined.iter().any(|j| j.weekday == 1));
     // again: bus 3 is locked there now and holds the trip - it is this bus, copied there before,
-    // so it is copied over (testers: "sometimes it works, sometimes it doesn't")
+    // so it is copied over (a second copy must work as the first did)
     let made = copy_rows(&mut c, 0, Day { date: MON, lines: &lines }, 1, Day { date: TUE, lines: &lines }, &rows_of_block("3"));
     assert_eq!((made.matched, made.total, made.missing.len(), made.locked), (1, 1, 0, 0));
     assert_eq!(tours_of_day(&c, &lines, TUE).len(), 3);
@@ -167,8 +167,8 @@ fn rows_copied_for_one_date_only_leave_its_weekday_as_it_was() {
 
 #[test]
 fn a_bus_copied_by_itself_onto_every_other_weekday_twice_is_there_each_time() {
-    // (testers: "sometimes it works, sometimes it doesn't. Also, it seems you can't copy the
-    // Tuesday": a locked bus copied once took its lock along, and a second copy found it locked)
+    // (a copy that only worked once, and Tuesday that would not copy: a locked bus copied once
+    // took its lock along, and a second copy found it locked)
     let week = [MON, TUE, WED, "2024-03-07", "2024-03-08", "2024-03-09", "2024-03-10"];
     let lines = line_of(&[("1", 360, 8), ("2", 390, 8)]);
     for i in 0..7 {

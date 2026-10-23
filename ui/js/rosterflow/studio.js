@@ -1,8 +1,7 @@
-// RosterFlow's Vehicles and Drivers tabs (`rosterflow::studio_page` of our game-drawn launcher):
-// the KPI tiles (opened to four rows with the histograms), the toolbar (SAVE, DISCARD, Stats,
-// Layers, Filter ... OPTIMIZE), Optimise's proposal over the Gantt, the Gantt (`gantt.js`), the
-// status bar (what is assigned, the Global, Duty and Vehicle issues, the zoom), what lies over
-// them (`panels.js`, `prefs.js`), and the keys.
+// RosterFlow's Vehicles and Drivers tabs: the KPI tiles (opened to four rows with the histograms),
+// the toolbar (SAVE, DISCARD, Stats, Layers, Filter ... OPTIMIZE), Optimise's proposal over the
+// Gantt, the Gantt (`gantt.js`), the status bar (what is assigned, the Global, Duty and Vehicle
+// issues, the zoom), what lies over them (`panels.js`, `prefs.js`), and the keys.
 
 import { html, useEffect, useRef, useState } from '../../vendor/preact-htm.js';
 import { S } from '../store.js';
@@ -118,7 +117,7 @@ function Toolbar({ data, drivers, proposal }) {
   return html`<div class="rf-toolbar">
     <span data-rf="rf-save-discard" class="pair">
       <span class="rf-split">
-        <${BusyButton} busy=${busyIs('save')} busyLabel="Saving…" label=${dirty || proposal ? 'Save' : 'Saved'} solid disabled=${!dirty || proposal || pressed} data="rf-save" title="Make the changes the company's planning: the roster, the day and the game run it" style="width:88px" onClick=${() => rfAct('save')} />
+        <${BusyButton} busy=${busyIs('save')} busyLabel="Saving…" label=${dirty || proposal ? 'Save' : 'Saved'} solid disabled=${!dirty || proposal || pressed} data="rf-save" title="Make the changes the company's planning: the roster and the days run it" style="width:88px" onClick=${() => rfAct('save')} />
         <${RfButton} label=${html`<${Icon} name="expand_more" size=${18} />`} raw solid disabled=${proposal} data="rf-apply-open" title="Save and apply to other days: every day of this day type, the days with the same timetable, or from a date until a date" style="width:28px;padding:0" onClick=${openApply} />
       </span>
       <${BusyButton} busy=${busyIs('discard')} busyLabel="Discarding…" label="Discard" disabled=${!dirty || proposal || pressed} data="rf-discard" style="width:116px" onClick=${() => rfAct('discard').then((x) => x && setRf({ hand: null, zones: null, sel: [], card: null, menu: null }))} />
@@ -164,7 +163,7 @@ function Proposal({ data }) {
 const offerOpen = (o, data) => !!o && data.board.issues.some((i) => !i.dismissed && o.groups.includes(i.group));
 
 /** After the Preferences were saved: what the changed rules break now, said at once, and
- * Optimise offered to work to them (testers: "its not actually realising this immediately"). */
+ * Optimise offered to work to them. */
 function RuleOffer({ o }) {
   return html`<div class="rf-proposal rf-ruleoffer" data-rf="rf-rule-offer">
     <${Icon} name="warning" size=${18} />

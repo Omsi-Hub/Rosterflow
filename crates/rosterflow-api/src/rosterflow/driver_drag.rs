@@ -1,11 +1,9 @@
-//! Luc's driver drag in the Drivers tab (branch `rf-driver-drag`, merged into `beta` at
-//! 1eba782b; the game-drawn launcher's `Hand::Duty` in `rf_gantt.rs`): single trips of a duty -
+//! The driver drag in the Drivers tab: single trips of a duty -
 //! on one bus or several, the bus staying the same - go to another duty or to a new one. The
 //! core works it out (`studio::plan_move_to_duty`, `move_to_duty`, `DutyTarget`); the zones are
 //! rated here as the Vehicles tab's are (`zones_for`).
 //!
-//! Trips chosen on several rows (testers: "Multi-selected duties ... can be selected all
-//! together, but not dragged up or down") go together: each duty's trips to the duty as many
+//! Trips chosen on several rows go together: each duty's trips to the duty as many
 //! rows up or down - in the rows as the page shows them - as the row taken hold of goes
 //! (`studio::move_to_duties`). A drop the core refuses says why.
 

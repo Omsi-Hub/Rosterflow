@@ -1,7 +1,6 @@
-// The pieces Omsi-Hub's steps and pages are built of, after our game-drawn launcher's ui kit
-// (`crates/omsi-launcher-ui/src/ui.rs`, `flow.rs`): icons by their Material names, a sheet's
+// The pieces the app's steps and pages are built of: icons by their Material names, a sheet's
 // head and foot, the action row, chips, segments, switches and sliders. Every text passed in
-// is English and translated here, as upstream's controls do.
+// is English and translated here.
 
 import { html } from '../../vendor/preact-htm.js';
 import { t } from '../i18n.js';
@@ -10,8 +9,8 @@ import { SYMBOLS } from '../symbols.js';
 
 export { html };
 
-/** A text of our game-drawn launcher's tables, with its `%{name}` holes filled after the lookup
- * (upstream's `t` fills `{name}`). */
+/** A text of the translation tables, with its `%{name}` holes filled after the lookup (a hole
+ * `vars` lacks stays as it is). */
 export function tr(text, vars) {
   let s = t(text);
   if (vars) s = s.replace(/%\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
@@ -28,8 +27,7 @@ export const keys = (text) => (MAC ? String(text).replace(/Ctrl\+?\s?/g, '⌘'
 /** The few names the old pages used that are not Material's own. */
 const ALIASES = { bus: 'directions_bus', users: 'groups', print_receipt: 'receipt' };
 
-/** A Material Symbol by its own name; a name the table lacks leaves its room empty, as our
- * game-drawn launcher's atlas does (`Ui::icon`). */
+/** A Material Symbol by its own name; a name the table lacks leaves its room empty. */
 export function Icon({ name, size = 20, class: cls = '' }) {
   const d = SYMBOLS[name] || SYMBOLS[ALIASES[name]] || '';
   return html`<svg class=${'hub-icon ' + cls} viewBox="0 -960 960 960" width=${size} height=${size} fill="currentColor" aria-hidden="true"><path d=${d} /></svg>`;
@@ -103,7 +101,7 @@ export const Radio = ({ on }) => html`<span class=${'hub-radio' + (on ? ' on' : 
 /** The line's plate. */
 export const Plate = ({ line }) => html`<span class="hub-plate">${line}</span>`;
 
-/** "2h 05m": a length as our launcher writes it. */
+/** "2h 05m": a length as the app writes it. */
 export function length(seconds) {
   const m = Math.round(Math.max(0, seconds) / 60);
   return tr('%{h}h %{mm}m', { h: Math.floor(m / 60), mm: String(m % 60).padStart(2, '0') });

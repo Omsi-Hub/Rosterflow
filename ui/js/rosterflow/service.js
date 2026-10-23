@@ -1,7 +1,7 @@
-// The day's service on RosterFlow's chips (Luc 2026-10-15: "When a trip fails, it's not shown in
-// the roster flow view"): the trips of the day shown that ran late or were dropped
-// (`company::late::service_json` - today's as the plan runs, another day's those of the last day
-// closed of its weekday), each by its block and departure. A dropped trip is hatched red with a
+// The day's service on RosterFlow's chips (a trip that failed shown in RosterFlow's view too): the
+// trips of the day shown that ran late or were dropped (the board's `outcomes` - today's as the
+// day runs, another day's those of the last day recorded of its weekday), each by its block and
+// departure. A dropped trip is hatched red with a
 // cross, a late one carries its minutes ("+7") in its penalty tier's colour; the hover tells the
 // bus, the driver and the chain of causes, the trip card and the Issues panel's group the same,
 // each name a link to the bus or the person. Every text comes translated from the Rust side.

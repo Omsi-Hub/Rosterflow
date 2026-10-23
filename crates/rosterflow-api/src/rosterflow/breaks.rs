@@ -1,6 +1,5 @@
-//! A duty's breaks and driving periods as RosterFlow's page shows them (testers, 2026-10-14:
-//! "when you define for it to show you periods between a break it does not tell me so its a bit
-//! of guesswork"): the labels in the Drivers Gantt's gaps, the band of driving periods under a
+//! A duty's breaks and driving periods as RosterFlow's page shows them, so the planner need not
+//! guess: the labels in the Drivers Gantt's gaps, the band of driving periods under a
 //! duty, their hover tips and the duty panel's lists - all from the core's `BreakPlan`, the one
 //! the issues are counted from. And the rules as the Preferences change them: what breaks each
 //! rule while the window is open (`prefs_check`), and after a save what the changed rules break,
@@ -243,8 +242,7 @@ fn changed(was: &Prefs, now: &Prefs) -> Vec<&'static str> {
 
 /// After the Preferences were saved (`was` the rules before, `before` what broke each then): the
 /// rules the day breaks now that changed or are broken more, said at once, with Optimise offered
-/// to work to them (testers: "its not actually realising this immediately"). Null when there are
-/// none.
+/// to work to them. Null when there are none.
 pub(crate) fn offer(was: &Prefs, now: &Prefs, before: Option<&[(&'static str, usize)]>, board: &Board) -> Value {
     let changed = changed(was, now);
     let broken: Vec<(&str, usize)> = rule_counts(board)

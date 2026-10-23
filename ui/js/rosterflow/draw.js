@@ -1,8 +1,6 @@
-// RosterFlow's drawing on a canvas, after our game-drawn launcher's (`rf_brand.rs`,
-// `rf_gantt.rs`): rounded boxes, the trips' arrow chips, deadheads, pull-outs and pull-ins,
-// T-bars, relief arrows, drop zones, checkboxes, icons and words - every length in the stage's
-// own units (as the game-drawn launcher's), every text size the game-drawn launcher's (its whole
-// height: `font`). `Canvas` keeps a canvas as sharp as the screen draws it.
+// RosterFlow's drawing on a canvas: rounded boxes, the trips' arrow chips, deadheads, pull-outs
+// and pull-ins, T-bars, relief arrows, drop zones, checkboxes, icons and words - every length in
+// the stage's own units, every text size the design's (its whole height: `font`). `Canvas` keeps a canvas as sharp as the screen draws it.
 
 import { SYMBOLS } from '../symbols.js';
 import { css, alpha, inkOn, font, px } from './pal.js';
@@ -121,7 +119,7 @@ function capHeight(ctx, size, weight) {
   return h;
 }
 
-/** How wide words are at a size and weight of the game-drawn launcher. */
+/** How wide words are at a size and weight of the design. */
 export function width(ctx, text, size, weight = 500) {
   ctx.font = font(size, weight);
   return ctx.measureText(String(text)).width;

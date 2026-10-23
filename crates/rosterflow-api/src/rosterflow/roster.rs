@@ -550,7 +550,7 @@ fn side_json(c: &Company, p: &DayPlan, sel: &Value) -> Value {
 fn day_side(c: &Company, p: &DayPlan) -> Value {
     let (tours, covered, open, no_bus) = p.counts();
     // (a duty or a bus nobody was planned for, covered today - an agency driver, a rental bus -
-    // is open no more: testers saw it "still in the open duties")
+    // is open no more, not still listed among the open duties)
     let rows: Vec<pl::OpenRow> = p.open_rows().into_iter().filter(|o| o.late || !(o.filled && o.problem == Some(Problem::Unassigned))).collect();
     // (what the dispatcher reported for the day: each with its way to take it back)
     let mut morning: Vec<Value> = Vec::new();

@@ -53,7 +53,7 @@ fn a_monday_to_friday_timetable_copies_to_saturday_and_to_sunday() {
         assert_eq!(tp::rows(&l, day, &inb).len(), 5);
         assert!(tp::clean(&l, day));
     }
-    // the game gets tours on Saturday and on Sunday: buses of those days' own
+    // the planning gets tours on Saturday and on Sunday: buses of those days' own
     let tours = reg::table_tours(&l);
     for day in [MF, SA, SU] {
         assert_eq!(tours.iter().filter(|t| t.day == day).flat_map(|t| t.trips.iter()).count(), 10, "day group {day}");

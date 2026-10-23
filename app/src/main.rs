@@ -126,12 +126,7 @@ fn main() {
             if let Ok(dir) = app.path().app_data_dir() {
                 rosterflow_api::store::set_data_dir(dir);
             }
-            tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into()))
-                .title("RosterFlow")
-                .inner_size(1440.0, 900.0)
-                .min_inner_size(1100.0, 700.0)
-                .center()
-                .build()?;
+            tauri::WebviewWindowBuilder::new(app, "main", tauri::WebviewUrl::App("index.html".into())).title("RosterFlow").inner_size(1440.0, 900.0).min_inner_size(1100.0, 700.0).center().build()?;
             Ok(())
         })
         .run(tauri::generate_context!())

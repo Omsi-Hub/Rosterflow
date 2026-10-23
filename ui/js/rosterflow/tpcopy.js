@@ -1,6 +1,6 @@
-// The Timeplan's "Copy to…" (testers: "I can't copy a timetable from MF to SA or SU"; "copy the
-// timetable that you've created for one day ... over to another day easily"; "a template for the
-// given day so that it can be used on more days"; the core's `plandays::timetable`): a line's
+// The Timeplan's "Copy to…" (Monday to Friday's timetable onto Saturday or Sunday, one day's
+// timetable over to another, a day's timetable kept as a template for more days; the core's
+// `plandays::timetable`): a line's
 // trips of the day shown - all of them, or the trips chosen - or a template kept by name, copied
 // onto the other day groups ticked, in place of their trips or beside them. A template is a saved
 // source of this same copy: kept here from the day or the trips chosen, renamed, thrown away.

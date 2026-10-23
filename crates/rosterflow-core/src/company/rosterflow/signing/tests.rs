@@ -1,4 +1,4 @@
-//! A duty's own sign-on, sign-off and break points (testers, 2026-10-15): the travel to and from
+//! A duty's own sign-on, sign-off and break points: the travel to and from
 //! them, the issues of the points chosen, the company's default, and Optimise keeping them.
 
 use super::super::super::network::{tours_of_day, TourOfDay};
@@ -69,7 +69,7 @@ fn block(tours: &[TourOfDay], no: &str) -> usize {
     tours.iter().position(|t| t.tour == no).unwrap()
 }
 
-/// Mitte as a relief point the player added on line 5's way.
+/// Mitte as a relief point the planner added on line 5's way.
 fn mitte() -> ReliefPoint {
     ReliefPoint { stop: "Mitte".into(), added: true, line: "Linie5".into(), ..Default::default() }
 }

@@ -1,7 +1,6 @@
-// RosterFlow's colours (`crates/omsi-launcher-ui/src/company/planning/rosterflow.rs`, `Pal`):
-// the dark look - Optibus's navy with one blue accent, orange warnings and red errors - and the
-// light one made to match. The look follows the launcher's (the settings' `dark_mode`), as our
-// game-drawn launcher's RosterFlow follows its own; the lines keep their own colours in both.
+// RosterFlow's colours (`Pal`): the dark look - Optibus's navy with one blue accent, orange
+// warnings and red errors - and the light one made to match. The look follows the app's (the
+// settings' `dark_mode`); the lines keep their own colours in both.
 // The canvas draws with these; rosterflow.css has the same as its `--rf-*` variables.
 
 import { dark } from '../hub/theme.js';
@@ -127,9 +126,9 @@ export function tone(p, t) {
   }
 }
 
-/** Our game-drawn launcher sizes text by the font's whole height (1.303 em for Hanken
- * Grotesk): a size of its own as CSS pixels. */
+/** The design sizes text by the font's whole height (1.303 em for Hanken Grotesk): a size of
+ * the design as CSS pixels. */
 export const px = (n) => n / 1.303;
 
-/** The canvas font of a size and weight of the game-drawn launcher. */
+/** The canvas font of a size and weight of the design. */
 export const font = (size, weight = 500) => `${weight} ${px(size)}px "Hanken Grotesk", sans-serif`;

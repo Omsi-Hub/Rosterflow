@@ -1,11 +1,11 @@
-// RosterFlow's Preferences window (`crates/omsi-launcher-ui/src/company/planning/rf_prefs.rs`,
-// Optibus's): a search box and IN USE / ALL on the left, the four kinds - VEHICLES, DRIVERS,
-// DEPOTS, MISC - and their preferences under them; the one chosen on the right, with what it
-// sets and, for a rule, whether it is a hard rule (never broken by Optimise, an error by hand)
-// or a soft one that costs a penalty. SAVE CHANGES, CANCEL, SAVE & CLOSE at the foot. The
-// preferences changed here are kept only when saved (`rf_act` "prefs"); meanwhile each rule says
-// next to its fields how many duties break it as edited (`rf_view` "prefs_check"), and after a
-// save the studio says what the changed rules break, with Optimise offered.
+// RosterFlow's Preferences window (as Optibus's): a search box and IN USE / ALL on the left, the
+// four kinds - VEHICLES, DRIVERS, DEPOTS, MISC - and their preferences under them; the one chosen
+// on the right, with what it sets and, for a rule, whether it is a hard rule (never broken by
+// Optimise, an error by hand) or a soft one that costs a penalty. SAVE CHANGES, CANCEL, SAVE &
+// CLOSE at the foot. The preferences changed here are kept only when saved (`rf_act` "prefs");
+// meanwhile each rule says next to its fields how many duties break it as edited (`rf_view`
+// "prefs_check"), and after a save the studio says what the changed rules break, with Optimise
+// offered.
 
 import { html, useEffect, useRef, useState } from '../../vendor/preact-htm.js';
 import { S } from '../store.js';
@@ -127,9 +127,9 @@ function setPoint(pr, row, patch) {
 }
 
 /** Minutes in a small field: empty for none (`null`), what it falls back to greyed in it. What
- * is typed is the field's own until it is left or Enter is pressed: the page is drawn anew four
- * times a second while the company's clock runs, and a field given its value back each time lost
- * what was typed in it before it was kept (Luc: Duty Travel's table "cannot be edited"). */
+ * is typed is the field's own until it is left or Enter is pressed: the page may be drawn anew
+ * several times a second, and a field given its value back each time would lose what was typed
+ * in it before it was kept (Duty Travel's table could not be edited so). */
 function Minutes0({ value, placeholder, set, max = 240, dec = false }) {
   const shown = value == null ? '' : String(value);
   const [text, setText] = useState(shown);
@@ -441,8 +441,7 @@ export function PrefsWindow() {
         <${Live} live=${live} item="continuous" />`;
       break;
     case 'limits': {
-      // (the least length of a duty, a tester's wish of 2026-10-15: "the shortest a duty can be";
-      // an old save has none)
+      // (the least length of a duty, the shortest a duty can be; an old save has none)
       const least = pr.min_duty || { on: false, value: v.min_paid || 240, hard: false, penalty: 0 };
       body = html`<b class="pf-sub">${tr('Spread at most').toUpperCase()}</b>
         <${Limit} lim=${pr.max_spread} label="Spread at most" step=${15} max=${1440} fmt=${hm} set=${(x) => put({ max_spread: x })} /><${Live} live=${live} item="limits" />

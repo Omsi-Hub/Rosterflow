@@ -1,7 +1,5 @@
-// RosterFlow - "Bus Scheduling & Crew Rostering" - the bus company's Planning page with the
-// add-on on (Trello "Tauri 4/6"), as our game-drawn launcher has it
-// (`crates/omsi-launcher-ui/src/company/planning/rosterflow.rs`): an application of its own
-// over the whole window, no company bar, its own Back (and Escape) to the company's start
+// RosterFlow - "Bus Scheduling & Crew Rostering" - the bus company's Planning page: an
+// application of its own over the whole window, no company bar, its own Back (and Escape) to the company's start
 // screen. Top to bottom: the title bar (the mark and the name, the menu's icons, the schedule's
 // name with its saved dot, undo, redo and the history, the day switcher, and the tabs Timeplan,
 // Vehicles, Drivers and Roster), then the tab's page: the Timeplan (`timeplan.js`), Vehicles and
@@ -9,8 +7,8 @@
 // it is opened (`brand.js`), the tutorial lies over it all (`tutorial.js`).
 //
 // The company's pages hand over to it here (`handOverHooks` of the company's kit): the Planning
-// page and a line's timetable open RosterFlow when the add-on is on, the duty launcher's "Open
-// in RosterFlow" its Roster on the duty.
+// page and a line's timetable open RosterFlow, and a duty handed over opens its Roster on the
+// duty.
 
 import { html, useEffect, useLayoutEffect, useRef, useState } from '../../vendor/preact-htm.js';
 import { S } from '../store.js';
@@ -40,11 +38,11 @@ if (!document.querySelector('link[data-rf-css]')) {
 
 export { ROSTER, VEHICLES, DRIVERS, TIMEPLAN, rfOpen };
 
-/** Open RosterFlow on the company's page (`planning::to_timeplan`, `rosterflow_switched_on`,
- * `duty_launch::to_planning`): `view` a tab, `day` the day of the week, `sel` a duty chosen on the
+/** Open RosterFlow on the company's page (the Planning page, a line's timetable, a duty handed
+ * over): `view` a tab, `day` the day of the week, `sel` a duty chosen on the
  * Roster tab, `reveal` a row of the Vehicles or Drivers tab shown (the day's report's trips
  * dropped), `line` a line for the Timeplan (`hint`: what its status bar says first), `offer`
- * its tutorial's menu (switched on just now). */
+ * its tutorial's menu. */
 export async function openRosterFlow(o = {}) {
   const on = await rfCmd('rf_on').catch(() => null);
   if (!on?.on) return false;
@@ -291,8 +289,8 @@ function TitleBar() {
   </header>`;
 }
 
-/** Who else is in RosterFlow now (company multiplayer): a round mark each, with his name, his
- * tab and his day on hover. */
+/** Who else has the company's RosterFlow open now: a round mark each, with his name, his tab and
+ * his day on hover. */
 function HereNow() {
   const here = S.rf.here || [];
   if (!here.length) return null;

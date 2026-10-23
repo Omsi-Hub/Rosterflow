@@ -67,3 +67,59 @@ pub fn call_bytes(cmd: &str, args: &Value, p: &dyn Platform) -> Result<Vec<u8>, 
         _ => Err(format!("unknown command: {cmd}")),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    /// The texts `tr("…")`, `trf("…")` (Rust) and `tr('…')` (the page) of `files` say.
+    fn literals(files: &[std::path::PathBuf]) -> Vec<(String, String)> {
+        let mut out = Vec::new();
+        for f in files {
+            let src = std::fs::read_to_string(f).unwrap();
+            let name = f.file_name().unwrap().to_string_lossy().to_string();
+            for (lead, quote) in [("tr(\"", '"'), ("trf(\"", '"'), ("tr('", '\'')] {
+                let mut rest = src.as_str();
+                while let Some(k) = rest.find(lead) {
+                    let after = &rest[k + lead.len()..];
+                    rest = after;
+                    let mut text = String::new();
+                    let mut chars = after.chars();
+                    while let Some(c) = chars.next() {
+                        match c {
+                            '\\' => text.extend(chars.next()),
+                            c if c == quote => break,
+                            c => text.push(c),
+                        }
+                    }
+                    out.push((name.clone(), text));
+                }
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn every_text_of_the_program_and_its_pages_is_translated() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let mut files = vec![root.join("src/app.rs"), root.join("src/master.rs"), root.join("src/company/kit.rs"), root.join("../../ui/js/app.js"), root.join("../../ui/js/company/dutycard.js")];
+        for dir in ["../../ui/js/pages", "../../ui/js/rosterflow"] {
+            for e in std::fs::read_dir(root.join(dir)).unwrap().flatten() {
+                files.push(e.path());
+            }
+        }
+        let texts = literals(&files);
+        assert!(texts.len() > 300, "only {} texts found", texts.len());
+        let mut missing = Vec::new();
+        for lang in ["nl", "de", "fr", "pl", "ru", "uk"] {
+            let table = crate::locales::texts(lang);
+            for (file, t) in &texts {
+                if !t.is_empty() && !table.contains_key(t) {
+                    missing.push(format!("{file} {lang}: {t:?}"));
+                }
+            }
+        }
+        missing.sort();
+        missing.dedup();
+        assert!(missing.is_empty(), "{} missing:\n{}", missing.len(), missing.join("\n"));
+        assert_eq!(crate::locales::texts("nl").get("Overview").map(String::as_str), Some("Overzicht"));
+    }
+}

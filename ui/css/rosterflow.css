@@ -1,10 +1,8 @@
-/* RosterFlow's look in the desktop launcher (Trello "Tauri 4/6"), after our game-drawn launcher's
- * (`crates/omsi-launcher-ui/src/company/planning/rosterflow.rs` and the files beside it): Optibus's
- * navy with one blue accent, orange warnings and red errors, and the light look made to match
- * (`Pal`, the same colours as `js/omsihub/rosterflow/pal.js` draws the canvases with). The Timeplan
- * has Optibus Planning's dark slate (`timeplan.rs`) and the light look the game-drawn launcher
- * makes of it. Text sizes are the game-drawn launcher's divided by 1.303 (it sizes text by the
- * font's whole height); lengths are its own. */
+/* RosterFlow's look in the desktop app: Optibus's navy with one blue accent, orange warnings and
+ * red errors, and the light look made to match (`Pal`, the same colours as `js/rosterflow/pal.js`
+ * draws the canvases with). The Timeplan has Optibus Planning's dark slate (`timeplan.rs`) and a
+ * light look made of it. Text sizes are the design's divided by 1.303 (the design sizes text by
+ * the font's whole height); lengths are the design's own. */
 
 /* --- the palette ------------------------------------------------------------------------------- */
 
@@ -110,7 +108,7 @@
   --rf-scrim: rgba(4, 8, 18, 0.39);
   --rf-backdrop: rgba(0, 0, 0, 0.2);
   --rf-off-solid: 0.22;
-  /* the Timeplan: the light look the game-drawn launcher makes of the slate */
+  /* the Timeplan: the light look made of the slate */
   --tp-bg: #f7f4ef;
   --tp-pane: #eae6e0;
   --tp-cell: #e1dcd5;
@@ -134,7 +132,7 @@
 
 /* --- the page ------------------------------------------------------------------------------------ */
 
-/* (RosterFlow has the whole window, a frame of the launcher's ground round it, as ours has) */
+/* (RosterFlow has the whole window, a frame of the app's ground round it) */
 .rf { position: absolute; inset: 12px; z-index: 5; display: flex; flex-direction: column; overflow: hidden; background: var(--rf-bg); color: var(--rf-text); font-family: "Hanken Grotesk", sans-serif; font-size: 10px; user-select: none; -webkit-user-select: none; }
 :where(.rf) button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: inherit; }
 :where(.rf) button:disabled { cursor: default; }
@@ -214,7 +212,7 @@
 .rf-select select option { background: var(--rf-sheet); color: var(--rf-text); }
 .rf-select .hub-icon { position: absolute; right: 6px; pointer-events: none; color: var(--rf-dim); }
 
-/* (a typed field is the launcher's own, as the game-drawn launcher's text_input draws it) */
+/* (a typed field in the app's own look) */
 .rf-input { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border-radius: 6px; background: var(--hub-field); box-shadow: inset 0 0 0 1px var(--hub-edge); color: var(--hub-text-dim); }
 .rf-input input { flex: 1; min-width: 0; height: 100%; background: none; border: 0; outline: none; color: var(--hub-text); font-size: 10.36px; }
 .rf-input:focus-within { box-shadow: inset 0 0 0 1.5px var(--hub-accent); }
@@ -231,7 +229,7 @@
 .rf-title .rf-brand .names { display: flex; flex-direction: column; gap: 3px; width: 196px; }
 .rf-title .rf-brand .names small { font-size: 8.06px; font-weight: 500; color: var(--rf-dim); white-space: nowrap; }
 .rf-title .rf-brand + .sep { margin-left: 14px; }
-/* (not `.menu`: upstream's styles.css makes every `.menu` a drop-down column) */
+/* (not `.menu`: a `.menu` is laid out as a drop-down column elsewhere) */
 .rf-title .rf-icons { position: static; flex: 1; min-width: 0; display: flex; flex-direction: row; align-items: center; gap: 6px; margin-left: 11px; height: 36px; }
 .rf-title .rf-name { position: relative; flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 0 10px; overflow: hidden; }
 .rf-title .rf-name b { font-size: 11.5px; font-weight: 700; color: var(--rf-warn); white-space: nowrap; }
@@ -242,12 +240,11 @@
 .rf-title.fit3 .rf-tab > span, .rf-title.fit4 .rf-tab > span { max-width: 0; overflow: hidden; }
 .rf-title.fit4 .rf-brand .names { display: none; }
 .rf-title.fit4 .rf-day { width: 132px; }
-/* (six icons since Play together's: closer together at the narrowest, or the last ran into undo in a
-   window of 776 px) */
+/* (six icons: closer together at the narrowest, or the last ran into undo in a window of 776 px) */
 .rf-title.fit4 .rf-icons { gap: 2px; margin-left: 6px; }
 .rf-title.fit4 .rf-icons > .rf-ibtn { width: 28px; }
 .rf-title .undo { display: flex; align-items: center; gap: 4px; margin-right: 11px; flex: none; }
-/* (company multiplayer: who else is in RosterFlow, and a player's planning seen read-only) */
+/* (who else has the company's RosterFlow open, and another planner's planning seen read-only) */
 .rf-title .rf-here { display: flex; align-items: center; margin-right: 10px; flex: none; }
 .rf-title .rf-here i { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 11px; font-weight: 700; color: #0e121c; background: var(--rf-ok); box-shadow: 0 0 0 2px var(--rf-bar); margin-left: -5px; cursor: default; }
 .rf-title .rf-here i:first-child { margin-left: 0; }
@@ -267,8 +264,8 @@
 .rf-studio { position: absolute; inset: 0; display: flex; flex-direction: column; }
 
 .rf-kpis { position: relative; flex: none; height: 100px; padding-top: 4px; background: var(--rf-bg); }
-/* (opened on a low window - a small one, or a large Launcher size: the figures scroll in their
-   own room, the toolbar and some of the Gantt stay in sight; Beta 53's layout check) */
+/* (opened on a low window - a small one, or a large text size: the figures scroll in their
+   own room, the toolbar and some of the Gantt stay in sight) */
 .rf-kpis.open { height: 376px; max-height: calc(100% - 100px); display: flex; flex-direction: column; }
 .rf-kscroll { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }
 .rf-kpis:not(.open) .rf-kscroll { overflow: hidden; }
@@ -293,7 +290,7 @@
 .rf-hist .bar small { height: 16px; line-height: 16px; font-size: 7.3px; color: var(--rf-dim); white-space: nowrap; overflow: hidden; max-width: 100%; }
 .rf-hist .cap { position: absolute; left: 0; right: 0; top: 76px; height: 14px; text-align: center; font-size: 8.45px; font-weight: 700; color: var(--rf-text); }
 .rf-hist:hover .cap { color: var(--rf-accent); }
-/* (the figures' tab: 18 high to hit - Beta 53's layout check - drawn as the 9 px tab it was) */
+/* (the figures' tab: 18 high to hit, drawn as a 9 px tab) */
 .rf-kpitab { position: absolute; left: 50%; bottom: 0; width: 36px; height: 18px; margin-left: -18px; background-clip: content-box; padding: 9px 4px 0; border-radius: 2px; background: var(--rf-tool); color: var(--rf-text); display: flex; align-items: center; justify-content: center; }
 .rf-kpitab:hover { background-image: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)); }
 
@@ -324,7 +321,7 @@
 .rf-status > .rf-wordmark { margin-left: 6px; font-size: 10.75px; }
 .rf-status .sep { width: 1px; height: 16px; flex: none; background: var(--rf-line); margin: 0 7px; }
 /* (a narrow RosterFlow: what is shown shortened with an ellipsis, the counts and the issues kept -
-   they ran over the issues at 200 %, Beta 53's layout check) */
+   at 200 % they would run over the issues) */
 .rf-status > .rf-wordmark { flex: none; }
 .rf-status .counts { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 0 1 auto; overflow: hidden; }
 .rf-status .counts .shown { color: var(--rf-dim); font-weight: 500; white-space: nowrap; min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; }
@@ -921,7 +918,7 @@ button.tp-cell:hover { background: var(--tp-cell-hover); }
 .rf .t-accent { color: var(--rf-accent); }
 .tp-body.empty { background: none; }
 
-/* --- spare lines (Beta 61): custom work's times typed on its card, a spare line's name and where
+/* --- spare lines: custom work's times typed on its card, a spare line's name and where
    its driver stands by (the card, the duty panel) --------------------------------------------- */
 .rf-eventcard .rf-evline { display: flex; align-items: center; gap: 8px; min-height: 26px; flex: none; min-width: 0; }
 .rf-eventcard .rf-evline > span { width: 84px; flex: none; font-size: 8.45px; font-weight: 700; color: var(--rf-card-dim); white-space: nowrap; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; }

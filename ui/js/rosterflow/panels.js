@@ -1,12 +1,12 @@
-// What lies over RosterFlow's Gantt (`crates/omsi-launcher-ui/src/company/planning/rf_panels.rs`):
-// the cards a click opens (a trip, a vehicle, an event, the stack's trip, a choice of several, a
-// drop zone's ranking and cost difference), the right-click menu, the batch toolbar of the ticked
-// rows, the Validation panel (open and dismissed issues, Filter Issues, Dismiss Issues), the duty
-// panel (its type, lock, times, paid time, signing, pieces, travel, breaks and custom work), and
-// the small windows of the toolbar, the title bar and the status bar (history, Stats, Layers,
-// Filter, zoom, print, the day, a line's colour, go to, the optimisation settings, a histogram);
-// and a duty's break or driving period clicked in the Drivers Gantt, with the duty's others.
-// Everything in the studio's own units (its top left 0, 0), as `rf_panels` lays it out.
+// What lies over RosterFlow's Gantt: the cards a click opens (a trip, a vehicle, an event, the
+// stack's trip, a choice of several, a drop zone's ranking and cost difference), the right-click
+// menu, the batch toolbar of the ticked rows, the Validation panel (open and dismissed issues,
+// Filter Issues, Dismiss Issues), the duty panel (its type, lock, times, paid time, signing,
+// pieces, travel, breaks and custom work), and the small windows of the toolbar, the title bar and
+// the status bar (history, Stats, Layers, Filter, zoom, print, the day, a line's colour, go to, the
+// optimisation settings, a histogram); and a duty's break or driving period clicked in the Drivers
+// Gantt, with the duty's others. Everything in the studio's own units (its top left 0, 0), as
+// `rf_panels` lays it out.
 
 import { html, useEffect, useRef, useState } from '../../vendor/preact-htm.js';
 import { S } from '../store.js';
@@ -129,7 +129,7 @@ export function TitleWindows({ data, drivers, size }) {
 // --- the batch toolbar -------------------------------------------------------------------------------
 
 /** The ticked rows' tools over the Gantt's header: lock, unlock, unassign to the stack (the
- * vehicles' trips; the duties' with "Unassign all trips", asked first - Luc, Beta 65: to plan
+ * vehicles' trips; the duties' with "Unassign all trips", asked first: to plan
  * them anew from scratch, Undo puts them back), and copy them to other days (`copyto.js`). */
 function Batch({ drivers, gTop }) {
   const r = S.rf;
@@ -238,7 +238,7 @@ function TripCard({ data, c, drivers, size }) {
 
 /** Why the trips chosen (`sel`, (block, trip) pairs) cannot be linked, as `rosterflow::link`
  * refuses it - or null: two trips or more with passengers, all of one bus. A trip cut on the way
- * counts once. (The Link button of the Drivers tab was always off: Luc, Beta 65.) */
+ * counts once. (The Link button of the Drivers tab must not be always off.) */
 export function linkWhy(b, sel) {
   if (new Set(sel.map(([i]) => i)).size > 1) return 'Only trips of one bus can be linked.';
   const xs = sel.map(([i, j]) => b.blocks[i]?.trips[j]).filter((x) => x?.counts);
@@ -839,7 +839,7 @@ function ZoomMenu() {
 
 /** Print: the bus graph or the duty graph as a PDF file, kept and opened. */
 function PrintMenu() {
-  // (saved where the player chooses; its folder shown then, as the game-drawn launcher shows it)
+  // (saved where the planner chooses; its folder shown then)
   const print = async (bus) => {
     setRf({ panel: null });
     const r = await rfCmd('rf_print', { day: S.rf.day, bus }).catch((e) => ({ say: { text: e.message, error: true } }));

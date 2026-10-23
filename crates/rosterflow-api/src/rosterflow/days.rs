@@ -1,4 +1,4 @@
-//! RosterFlow's plan copied to the other days it works with (Trello #100, `co::plandays`): what
+//! RosterFlow's plan copied to the other days it works with (`co::plandays`): what
 //! each day of the coming week runs - its weekday's plan, one of its own, a copy of another
 //! day's and whether it is still as copied - for the day switcher and the toolbar's chip; the
 //! "Apply to" window of SAVE (each day of the week with what a copy would match there); the save
@@ -175,7 +175,7 @@ fn plan_of(c: &Company, apply: Option<&Value>) -> Option<Plan> {
 }
 
 /// The days a copy from `date` reached that run the timetable of another day type and did not
-/// match it all (testers: "I can't copy a timetable from MF to SA or SU"): a plan copies onto the
+/// match it all (a weekday's plan onto Saturday or Sunday): a plan copies onto the
 /// trips a day has, so the line's timetable goes there first - the Timeplan's "Copy to…"
 /// (`plandays::copy_table`). Said after what was copied.
 fn timetable_hint(date: &str, made: &[(String, bool, Copied)]) -> Option<String> {
@@ -189,7 +189,7 @@ fn timetable_hint(date: &str, made: &[(String, bool, Copied)]) -> Option<String>
     })
 }
 
-/// What the copies that did not take say (testers: "sometimes it works, sometimes it doesn't"): the
+/// What the copies that did not take say: the
 /// days that run the source's planning already, those with no trip to copy onto, and those where
 /// nothing matched - each named, never a copy that silently did nothing.
 fn not_copied(made: &[(String, bool, Copied)]) -> Vec<String> {
@@ -220,7 +220,7 @@ fn took(m: &Copied) -> bool {
 
 /// What a SAVE says: saved, and how many duties the roster has no driver for now (`plan::follow`).
 fn saved_text(open: usize) -> String {
-    let saved = tr("Saved: the roster, the day and the game run this planning now.");
+    let saved = tr("Saved: the roster and the days run this planning now.");
     if open == 0 {
         return saved;
     }
@@ -286,7 +286,7 @@ pub(super) fn save(s: &mut Session, r: &mut Rf, date: &str, apply: Option<&Value
     let copied: Vec<String> = made.iter().filter(|m| took(&m.2)).map(|m| short(&m.0)).collect();
     let failed = not_copied(&made);
     let mut text = if !copied.is_empty() {
-        trf("Copied to %{days}: the roster, those days and the game run it now.", &[("days", &copied.join(", "))])
+        trf("Copied to %{days}: the roster and those days run it now.", &[("days", &copied.join(", "))])
     } else if only {
         trf("Saved for %{day} only: its weekday's planning stays as it was.", &[("day", &short(date))])
     } else if saved {
@@ -397,7 +397,7 @@ fn rows_of(b: &rf::Board, ids: &[String]) -> pd::Rows {
     rows
 }
 
-/// "Copy to…" (the selection bar, Ctrl+C and Ctrl+V; testers, Beta 56): the rows ticked on the
+/// "Copy to…" (the selection bar, Ctrl+C and Ctrl+V): the rows ticked on the
 /// day `date` (`ids`) copied to the days chosen (`targets`: the day switcher's `k`, each `as`
 /// "week" every week, "date" that date only, "runs" into the plan it runs) - into the draft, so
 /// Undo takes it back and SAVE keeps it. Only the trips that match go along; what did not comes
@@ -566,7 +566,7 @@ mod tests {
 
     #[test]
     fn a_copy_that_did_not_take_says_why() {
-        // (testers: "sometimes it works, sometimes it doesn't": never "Copied" for nothing)
+        // (never "Copied" for nothing)
         super::super::super::company::words::set_language("en");
         let ok = Copied { matched: 16, total: 16, ..Default::default() };
         let made = vec![

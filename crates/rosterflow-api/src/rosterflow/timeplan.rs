@@ -123,8 +123,8 @@ impl Tp {
     }
 
     /// Open the line `line` of the company `company` with `hint` in the status bar (the line
-    /// editor confirmed it, a line of the map's was added): read again unless changes of it are
-    /// in hand. Returns the screen to show (a new line's running times, a map's timetable).
+    /// editor confirmed it, a line was added): read again unless changes of it are in hand.
+    /// Returns the screen to show (a new line's running times).
     pub(crate) fn guide(&mut self, company: &str, line: &str, hint: Option<&'static str>) -> Option<usize> {
         let same = self.company == company && self.line.eq_ignore_ascii_case(line);
         self.company = company.to_string();
@@ -383,7 +383,7 @@ fn line_colour(l: &LineDesign) -> String {
     }
 }
 
-// --- the days that use a timetable (Trello #100) ---------------------------------------------------
+// --- the days that use a timetable -----------------------------------------------------------------
 
 /// The day group whose timetable of `l` the line `name` runs in `lines` (one day's): the group
 /// most of whose departures it has, the weekday's own (`natural`) on a tie; None without trips.
@@ -954,7 +954,7 @@ fn act(s: &mut Session, r: &mut Rf, args: &Value) -> Answer {
         }
         "copy_run" => {
             // (the running times of the day group shown to other day groups: "Copy timings to…"
-            // beside the day group - Luc, Beta 65; the direction shown, or every one)
+            // beside the day group; the direction shown, or every one)
             let to: Vec<usize> =
                 args.get("to").and_then(Value::as_array).map(|a| a.iter().filter_map(Value::as_u64).map(|x| x as usize).filter(|&d| d != day && d < DAY_GROUPS.len()).collect()).unwrap_or_default();
             if to.is_empty() {

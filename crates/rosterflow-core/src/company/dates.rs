@@ -1,6 +1,6 @@
 //! The company's calendar: dates as `YYYY-MM-DD` in the saved file (readable, and what the
 //! timetable is asked for), as day numbers for counting. A week starts on Monday, as the
-//! game's clock and the timetable's day masks have it.
+//! roster and the timetable's day masks have it.
 
 /// Days since 1970-01-01 of a civil date (Howard Hinnant's algorithm).
 pub fn days_from_civil(y: i32, m: u32, d: u32) -> i64 {

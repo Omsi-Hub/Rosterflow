@@ -1,5 +1,5 @@
-// RosterFlow's "Colour by" (testers, Beta 56: "change the colour based on the Trip ID instead of
-// just the route as some maps do it this way, this can be a choice"): the trips' chips in the
+// RosterFlow's "Colour by" (the colour by the trip ID instead of only the route, as a choice):
+// the trips' chips in the
 // Vehicles and Drivers tabs coloured by their line (as the lines have it), their trip of the
 // timetable (its name: each trip pattern a colour of its own), their bus's block or their duty;
 // one value always the same colour, from a palette stepped for the light look and the dark; and

@@ -1,15 +1,12 @@
-/* Omsi-Hub's bus company in the desktop launcher (Trello "Tauri 2/6"), after our game-drawn
-   launcher's company screen (crates/omsi-launcher-ui/src/company): the whole window its own,
-   its bar across the top, the way round under it, the pages filling the rest.
+/* The bus company's pages in the desktop app: the whole window its own, its bar across the
+   top, the way round under it, the pages filling the rest.
 
-   Lengths are the game-drawn launcher's own (it lays out for the same 1440 x 820 stage, see
-   omsihub.css); its type sizes are drawn smaller by 1.303 here (the same face at the same
-   pixel size reads larger in the game's renderer: phase 1 measured it). Its paragraphs keep
-   their lines 1.38 of the game's size apart (`Ui::paragraph`): 1.8 of the size here. Loaded by
-   js/omsihub/company/company.js. */
+   Lengths are laid out for a 1440 x 820 stage; type sizes are the design's divided by 1.303
+   (the face reads larger at the design's sizes). Paragraphs keep their lines 1.8 of the size
+   apart. Loaded by index.html. */
 
 :root.hub {
-  /* the company's ground: the launcher's darkest in the dark look, the accent's light tint in
+  /* the company's ground: the darkest of the theme in the dark look, the accent's light tint in
      the light one */
   --co-ground: #090c18;
   /* sizes (`company/kit.rs`): a dialog's title, a section's leading figure, running text, rows,
@@ -40,8 +37,8 @@
   --co-lift: rgba(255, 255, 255, 0.237);
   --co-pill-edge: rgba(255, 255, 255, 0.561);
   --co-scrim: rgba(0, 0, 0, 0.62);
-  /* see-through white and accent as the game-drawn launcher blends them (in linear light:
-     stronger on the night): launcher/tools/omsihub-linear-alpha.py works them out */
+  /* see-through white and accent, worked out to match a blend in linear light (stronger on the
+     dark ground than the same rgba plainly blended) */
   --aw-03: 0.156;
   --aw-04: 0.186;
   --aw-05: 0.213;
@@ -114,8 +111,8 @@
 .co { position: absolute; inset: 0; background: var(--co-ground); color: var(--hub-text); font-size: var(--co-body); overflow: hidden; }
 .co * { box-sizing: border-box; }
 
-/* the hub's see-through edges, lines and tracks as the game-drawn launcher shows them (its
-   linear-light blending: on the night much stronger than the same rgba here) */
+/* the theme's see-through edges, lines and tracks, as a linear-light blend shows them (on the
+   dark ground much stronger than the same rgba here) */
 .co { --hub-hairline: rgba(255, 255, 255, 0.298); --hub-edge: rgba(255, 255, 255, 0.279); --hub-lift: rgba(255, 255, 255, 0.237); --hub-track: rgba(255, 255, 255, 0.407); --hub-rail: rgba(255, 255, 255, 0.349); }
 :root.hub[data-theme="light"] .co { --hub-hairline: rgba(22, 20, 26, 0.134); --hub-edge: rgba(22, 20, 26, 0.126); --hub-lift: rgba(22, 20, 26, 0.108); --hub-track: rgba(22, 20, 26, 0.185); --hub-rail: rgba(22, 20, 26, 0.157); }
 .co button { font-family: inherit; }
@@ -133,7 +130,7 @@
 .co .grow { flex: 1; min-width: 0; }
 .co .cut { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .co .num { font-variant-numeric: tabular-nums; }
-/* (upstream's `.right` pushes a block aside: ours is only a name) */
+/* (`.right` here is only a name: it pushes nothing aside) */
 .co .right { margin-left: 0; }
 
 /* the bar: the company's mark, name, mode and what it has; its clock; its settings, the look,
@@ -153,7 +150,7 @@
 .co-bar .lone b { display: block; font-size: 14.6px; line-height: 26px; }
 .co-bar .lone span { display: block; font-size: var(--co-note); color: var(--hub-text-dim); }
 
-/* what the company has: its cash, trophies and reputation in one pill, each a click from its page */
+/* what the company has: its figures in one pill, each a click from its page */
 .co-status { height: 40px; border-radius: 20px; display: flex; align-items: center; padding: 0 1px; gap: 0; flex: none; min-width: 0; overflow: hidden;
   background: color-mix(in srgb, var(--hub-panel) 40%, var(--hub-hover)); box-shadow: inset 0 0 0 1.5px var(--co-pill-edge); }
 .co-status > button { height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 11px; border-radius: 17px; background: none; color: var(--hub-text); font-size: 11.1px; font-weight: 700; white-space: nowrap; cursor: default; }
@@ -168,7 +165,7 @@
 :root.hub[data-theme="light"] .co-status .dot.warn { color: #8a5e10; }
 :root.hub[data-theme="light"] .co-status .dot.early { color: #2a5fc4; }
 
-/* a game mode's pill: its icon and name; Casual's in the accent */
+/* a mode's pill: its icon and name; Casual's in the accent */
 .co-pill { height: 22px; border-radius: 11px; display: inline-flex; align-items: center; gap: 5px; padding: 0 12px 0 8px; flex: none; white-space: nowrap;
   background: var(--hub-field); box-shadow: inset 0 0 0 1px var(--hub-hairline); color: var(--hub-text-soft); font-size: 9.2px; font-weight: 700; }
 .co-pill.casual { background: rgba(var(--hub-accent-rgb), var(--ac-18)); box-shadow: none; color: var(--co-accent2); }
@@ -215,10 +212,9 @@ button.co-pill.casual:hover { background: rgba(var(--hub-accent-rgb), var(--ac-2
 .co-rail .badge.ok { background: rgb(var(--co-ok-fill)); }
 .co-rail .badge.early { background: #2a75f7; }
 
-/* (a narrow stage - a small window, or a large Launcher size: Beta 53's layout check): the bar,
-   the way round and the pages closer to the edges, the rail's icons a little closer together;
-   narrower still, Back, Simulate to tomorrow and the start screen's button as icons, their
-   words in their tooltips */
+/* (a narrow stage - a small window, or a large text size): the bar, the way round and the pages
+   closer to the edges, the rail's icons a little closer together; narrower still, Back, the
+   day's step and the start screen's button as icons, their words in their tooltips */
 @container (max-width: 1100px) {
   .co-bar { padding: 0 16px; }
   .co-nav, .co-body { left: 16px; right: 16px; }
@@ -339,7 +335,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-unlock::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 2px; background: var(--co-accent2); }
 .co-unlock .hub-icon { position: absolute; left: 13px; top: 12px; color: var(--co-accent2); }
 
-/* the cover while the company's time is simulated */
+/* the cover while the company's day is worked out */
 .co-cover { position: absolute; inset: 0; z-index: 60; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; }
 .co-cover > div { min-width: 380px; height: 110px; padding: 24px 30px 0; background: var(--hub-panel); border-radius: var(--hub-r-sheet); box-shadow: inset 0 0 0 1px var(--hub-edge); text-align: center; }
 .co-cover b { display: block; font-size: var(--co-head); line-height: 28px; }
@@ -347,11 +343,11 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-cover .bar i { position: absolute; top: 0; bottom: 0; width: 30%; border-radius: 3px; background: var(--hub-accent); animation: co-busy 1.2s ease-in-out infinite; }
 @keyframes co-busy { from { left: -30%; } to { left: 100%; } }
 
-/* what the page says in its corner (the game-drawn launcher's status line) */
+/* what the page says in its corner (its status line) */
 .co-notice { position: absolute; left: 22px; bottom: 6px; z-index: 30; max-width: 60%; height: 22px; border-radius: 11px; padding: 0 12px; display: flex; align-items: center; font-size: 8.4px; color: var(--hub-text-dim); background: rgba(var(--co-white), var(--aw-06)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .co-notice.error { color: var(--co-danger-text); }
 
-/* --- the start of the bus company: how to play, the companies ------------------------------ */
+/* --- the start of the bus company: how to begin, the companies ----------------------------- */
 
 .co-choose { height: 100%; display: flex; flex-direction: column; align-items: stretch; }
 .co-choose .head { text-align: center; flex: none; }
@@ -389,9 +385,9 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-company.new b { margin-top: 12px; }
 .co-company.new .home { margin-top: 4px; }
 
-/* the founding: the company on the left, the game mode on the right */
+/* the founding: the company on the left, the mode on the right */
 .co-found { height: 100%; overflow: auto; }
-/* (as tall as the window, or as its content - the game mode's cards and the vehicles: never squeezed) */
+/* (as tall as the window, or as its content - the mode's cards and the vehicles: never squeezed) */
 .co-found .inner { min-height: max(760px, 100%); height: auto; display: flex; flex-direction: column; }
 .co-found h1 { font-size: 18.4px; font-weight: 700; line-height: 32px; flex: none; }
 .co-found .intro { font-size: var(--co-body); color: var(--hub-text-soft); line-height: 1.8; max-width: 1100px; margin-top: 8px; flex: none; }
@@ -420,15 +416,15 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-found .card.on .top i { background: rgba(var(--hub-accent-rgb), var(--ac-22)); color: var(--co-accent2); }
 .co-found .card .top b { font-size: var(--co-title); color: var(--hub-text-soft); }
 .co-found .card.on .top b { color: var(--hub-text); }
-/* the hiring's bar: the roles and the job advert (Beta 54) */
+/* the hiring's bar: the roles and the job advert */
 .co-hirebar { flex: none; display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
 .co-hirebar > .co-btn { flex: none; }
 .co-hirenone { max-width: 760px; }
-/* the buses the company works with (Beta 54: `vehicles.js`) */
+/* the buses the company works with (`vehicles.js`) */
 .co-found .vehicles { flex: none; margin-top: 14px; }
 .co-found .vehicles .row2 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-top: 4px; }
 .co-found .vehicles .says { font-size: var(--co-note); color: var(--hub-text-soft); line-height: 1.8; margin-top: 6px; }
-/* (a narrow stage: the company and the game mode one under the other, the page scrolled) */
+/* (a narrow stage: the company and the mode one under the other, the page scrolled) */
 @container (max-width: 1100px) {
   .co-found .inner { height: auto; min-height: 0; }
   .co-found .cols { grid-template-columns: minmax(0, 1fr); flex: none; }
@@ -451,7 +447,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-found .foot .need { flex: 1; font-size: var(--co-body); color: var(--hub-text-soft); }
 .co-found .foot .co-btn { height: 44px; }
 
-/* the play speeds only where the bar has room for them (`clock::head`: a clock 640 wide) */
+/* the clock's step buttons only where the bar has room for them (a clock 640 wide) */
 .co-clock .play { display: none; }
 @container (min-width: 1469px) { .co-clock .play { display: inline-flex; } }
 
@@ -608,7 +604,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-iconline .hub-icon { flex: none; margin-top: 2px; }
 .co-talkside { display: flex; flex-direction: column; min-width: 0; overflow: auto; }
 .co-talkside .photo { border-radius: var(--hub-r); background: linear-gradient(#263046, #181f2e); flex: none; }
-/* (a bus's photo, as the game-drawn launcher took it: covering its place, as `image_cover`) */
+/* (a bus's photo covering its place) */
 .photo.shot { background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; }
 .co-talkside .what { font-size: var(--co-head); margin: 12px 0 10px; line-height: 1.8; }
 .co-talkside .asking { display: flex; align-items: center; justify-content: space-between; height: 38px; margin: 2px 0 14px; }
@@ -786,8 +782,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-farerow .vs { width: 130px; color: var(--hub-text-soft); }
 .co-farerow .pax { flex: 1; text-align: right; font-weight: 500; margin-right: 18px; }
 
-/* the photo's place in the light look: the night's greys turned to the light ones, as the
-   game-drawn launcher's light look turns them (`theme::to_light`) */
+/* the photo's place in the light look: the dark look's greys turned to the light ones */
 :root.hub[data-theme="light"] .co-bustile .photo, :root.hub[data-theme="light"] .co-busside .photo, :root.hub[data-theme="light"] .co-talkside .photo { background: linear-gradient(#e0dbd4, #f8f6f0); color: var(--hub-text); }
 :root.hub[data-theme="light"] .co-bustile .mono { background: rgba(22, 20, 26, 0.255); color: var(--hub-text); }
 
@@ -880,7 +875,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-rules .minrow .now { font-size: var(--co-note); color: var(--hub-text-dim); font-weight: 400; margin-left: 10px; }
 .co-rules .minrow.off, .co-rules .minrow.off > .hub-icon { color: var(--hub-text-dim); }
 
-/* --- the holidays (Beta 57: people.js `Holidays`, `HolidayRequest`) --------------------------- */
+/* --- the holidays (people.js `Holidays`, `HolidayRequest`) ------------------------------------ */
 
 .co-hol { height: 100%; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, 1fr); gap: 22px; }
 .co-hol .left { min-height: 0; overflow: auto; padding-right: 6px; }
@@ -1021,7 +1016,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-scores .grid { position: absolute; left: 0; right: 0; height: 1px; background: rgba(var(--co-white), var(--aw-06)); }
 .co-scores .bar { position: absolute; bottom: 0; border-radius: 2px 2px 0 0; }
 
-/* --- the company's duty launcher: RosterFlow's palette (`rosterflow::DARK`, `LIGHT`) ---------- */
+/* --- the company's way into RosterFlow: RosterFlow's palette (`rosterflow::DARK`, `LIGHT`) ---- */
 
 .co-launch { --rf-bg: #272e38; --rf-bar: #212730; --rf-sheet: #2e3642; --rf-text: #e2e6ec; --rf-dim: #969eac; --rf-faint: #68707e; --rf-line: rgba(255, 255, 255, 0.259); --rf-accent: #3fa8ff; --rf-err: #f04848; --rf-grey: #687484; --rf-grey-ink: #ffffff;
   height: 100%; border-radius: var(--hub-r); background: var(--rf-bg); color: var(--rf-text); display: flex; flex-direction: column; overflow: hidden; }
@@ -1121,7 +1116,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-casual-home .drive b { position: absolute; left: 26px; right: 26px; top: 120px; font-size: 19.95px; line-height: 34px; }
 .co-casual-home .drive > span:last-child { position: absolute; left: 26px; right: 26px; top: 160px; font-size: var(--co-body); font-weight: 500; opacity: 0.85; line-height: 1.8; }
 .co-casual-home .tiles { display: grid; gap: 16px; margin: 20px 0 8px; }
-/* (ctile: upstream's and the hub's .tile is the bus step's, on the field) */
+/* (ctile: .tile is taken by another style) */
 .co-casual-home .ctile { height: 180px; padding: 18px; display: flex; flex-direction: column; }
 .co-casual-home .ctile .name { display: flex; align-items: center; gap: 10px; height: 34px; }
 .co-casual-home .ctile .name b { font-size: 12.3px; }
@@ -1224,7 +1219,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-casual-shifts .bus { display: flex; align-items: center; gap: 8px; font-size: var(--co-note); height: 22px; margin-top: 0; }
 .co-casual-shifts .shift-trips { font-size: var(--co-note); color: var(--hub-text-dim); line-height: 20px; margin-top: 3px; }
 
-/* --- the workshop job the player does (phase 6: `company/repair.js`, `repair_game::play`) ---- */
+/* --- a workshop job (`company/repair.js`) ---------------------------------------------------- */
 
 .co-repair { height: 100%; display: flex; flex-direction: column; }
 .co-repair .head { display: flex; align-items: flex-start; gap: 10px; flex: none; height: 64px; }
@@ -1271,7 +1266,7 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-repair-done .row .did { font-size: 10.75px; font-weight: 500; text-align: right; }
 .co-repair-done .foot { display: flex; justify-content: flex-end; flex: none; margin-top: 8px; }
 
-/* --- the shell (Beta 65): the sidebar, the slim bar, the command palette ------------------- */
+/* --- the shell: the sidebar, the slim bar, the command palette ----------------------------- */
 
 /* the room the shell leaves the page: the sidebar's width (open, its rail, slid away; none in the
    palette layout) and the bar's height (with its row of shortcuts in the palette layout) */
@@ -1364,8 +1359,8 @@ select.co-field { appearance: none; -webkit-appearance: none; padding-right: 36p
 .co-side.rail .co-side-foot { flex-direction: column; padding: 10px 0 14px; }
 .co-side.rail .co-side-fold { flex: none; width: 40px; justify-content: center; padding: 0; }
 
-/* the slim bar over the page: where one is, the search, the cash and the reputation, the clock
-   with "Simulate to tomorrow" and its menu, the bell, the round menu, Back */
+/* the slim bar over the page: where one is, the search, the company's figures, the clock with
+   its step to the next day and its menu, the bell, the round menu, Back */
 .co-top { position: absolute; left: var(--co-side-w, 0px); right: 0; top: 0; height: 60px; z-index: 11; display: flex; align-items: center; gap: 10px; padding: 0 20px 0 24px;
   background: var(--hub-panel); border-bottom: 1px solid var(--hub-edge); transition: left 0.22s cubic-bezier(0.22, 0.8, 0.3, 1); }
 .co-top > * { flex: none; }
@@ -1433,7 +1428,7 @@ button.co-top-crumb:hover { background: var(--hub-hover); color: var(--hub-text)
 .co-top-chip:hover { background: var(--hub-hover); color: var(--hub-text); }
 .co-top-chip.on { background: var(--hub-accent); color: var(--hub-on-accent); }
 
-/* the dropdowns under the bar: Simulate's other steps, the bell, the round menu */
+/* the dropdowns under the bar: the clock's other steps, the bell, the round menu */
 .co-pop { position: absolute; top: calc(100% + 8px); min-width: 260px; max-width: 380px; z-index: 40; padding: 6px; border-radius: var(--hub-r-sheet); background: var(--hub-panel); box-shadow: var(--hub-shadow), inset 0 0 0 1px var(--hub-edge);
   animation: co-pop-in 0.14s ease-out; }
 .co-pop-right { right: 0; }
@@ -1477,7 +1472,7 @@ button.co-top-crumb:hover { background: var(--hub-hover); color: var(--hub-text)
 .co-cmdk-foot { flex: none; display: flex; gap: 18px; padding: 10px 18px; border-top: 1px solid var(--hub-hairline); font-size: var(--co-note); color: var(--hub-text-dim); }
 .co-cmdk-foot span { display: inline-flex; align-items: center; gap: 5px; }
 
-/* the dashboard's "Needs you": what needs the player, each with its button */
+/* the dashboard's "Needs you": what needs the planner, each with its button */
 .co-dash-needs .co-dash-list { flex: 1; min-height: 0; overflow-y: auto; margin: -4px -6px 0; padding: 0 6px; }
 .co-dash-row { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 6px 0; border-bottom: 1px solid var(--hub-hairline); }
 .co-dash-row:last-child { border-bottom: 0; }

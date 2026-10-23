@@ -295,7 +295,7 @@ fn same_plan(c: &Company, lines: &[LineInfo], a: &str, b: &str) -> bool {
 
 #[test]
 fn every_weekday_copies_onto_every_other_weekday_tuesday_too() {
-    // (testers: "it seems you can't copy the Tuesday")
+    // (Tuesday copies like any other day)
     let lines = line5();
     for (i, a) in WEEK.iter().enumerate() {
         for (j, b) in WEEK.iter().enumerate().filter(|(j, _)| *j != i) {

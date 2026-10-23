@@ -1,4 +1,4 @@
-/* The duty card (`js/omsihub/company/dutycard.js`): its preview dialog in the launcher's look,
+/* The duty card (`js/company/dutycard.js`): its preview dialog in the app's look,
    and the slip as a receipt printer prints it - black on white, a monospaced type, no colours,
    at the paper's real width (the mm are the printer's). Printing shows the slip alone. */
 

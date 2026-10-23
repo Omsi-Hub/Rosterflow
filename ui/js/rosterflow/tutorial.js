@@ -1,22 +1,19 @@
-// RosterFlow's tutorial (`crates/omsi-launcher-ui/src/company/planning/rf_tutorial.rs` and
-// RosterFlow's part of `tour.rs`; Luc: "build a tutorial for the new RosterFlow: I no longer
-// understand how it works, let alone other players"). Three parts, all from the "?" in
+// RosterFlow's tutorial, for a planner new to RosterFlow. Three parts, all from the "?" in
 // RosterFlow's title bar:
 //
 // * The guided tour: a spotlight and a bubble over RosterFlow - what it is for (the chain from
 //   the timeplan to the roster, and SAVE), how to read its screen, and each tab with its main
-//   controls lit. It starts by itself the first time a driver opens RosterFlow (once its opening
+//   controls lit. It starts by itself the first time a planner opens RosterFlow (once its opening
 //   has played), and the "?" brings it back, from where it was left or from any of its chapters.
-// * The lessons ("Try it yourself"): short tasks done on the player's own company. Each step
-//   has its goal in one line and ticks itself off once the player has done it (on what RosterFlow
+// * The lessons ("Try it yourself"): short tasks done on the planner's own company. Each step
+//   has its goal in one line and ticks itself off once the planner has done it (on what RosterFlow
 //   shows: `probe`); the guide rings the part the step is about without taking the page from the
-//   player. Before a lesson the planning is kept (`rf_tut_act` "begin"): "End lesson" keeps the
+//   planner. Before a lesson the planning is kept (`rf_tut_act` "begin"): "End lesson" keeps the
 //   changes or undoes the lesson.
 // * The help sheet ("RosterFlow in 2 minutes"): the chain, the words with a small drawing of each
 //   chip and symbol, the shortcuts, and what to do when something is red.
 //
-// What a driver has seen is kept in `~/.openomsi/rosterflow-tour.json` (`rf_tut`), the file our
-// game-drawn launcher keeps it in.
+// What a planner has seen is kept in the data folder's `rosterflow-tour.json` (`rf_tut`).
 
 import { html, useEffect, useRef, useState } from '../../vendor/preact-htm.js';
 import { S } from '../store.js';
@@ -42,7 +39,7 @@ export const STOPS = [
   ['What RosterFlow is', '2. Vehicles: which bus drives which trips', "The day's trips are shared out among your buses. One bus's day of trips is called a block. A good block keeps the bus busy and has few empty runs.", 'rf-tab-vehicles', VEHICLES],
   ['What RosterFlow is', '3. Drivers: who drives', "A bus's day is too long for one driver, so each block is cut into duties: one driver's working day. A cut can only be made where a driver can get on or off: at a terminus or at the depot.", 'rf-tab-drivers', VEHICLES],
   ['What RosterFlow is', '4. Roster: which driver, which day', 'Here your drivers get their duties and your buses their blocks, weekday by weekday. What you plan for a Monday repeats every Monday.', 'rf-tab-roster', VEHICLES],
-  ['What RosterFlow is', 'Then SAVE', "Your changes in Vehicles and Drivers are a draft. SAVE makes them the company's planning: the roster, the day and the game run it. DISCARD throws the draft away and goes back to what was saved.", 'rf-save-discard', VEHICLES],
+  ['What RosterFlow is', 'Then SAVE', "Your changes in Vehicles and Drivers are a draft. SAVE makes them the company's planning: the roster and the days run it. DISCARD throws the draft away and goes back to what was saved.", 'rf-save-discard', VEHICLES],
   ['Reading the screen', 'The title bar', "On the left: the rules (preferences), printing, search by ID and the optimiser's settings. In the middle your company and the day, with a dot: green is saved, orange means there are changes not saved yet.", 'rf-menu', VEHICLES],
   ['Reading the screen', 'Undo, redo and history', 'Every change can be undone (Ctrl+Z) and done again (Ctrl+Y). The clock lists all your changes, so you can go back to any one of them.', 'rf-undo', VEHICLES],
   ['Reading the screen', 'The day you plan', "Choose the day here. A day's planning holds for that weekday every week: change a Tuesday and every Tuesday changes.", 'rf-day', VEHICLES],
@@ -144,7 +141,7 @@ export const LESSONS = [
     ['Make a change', 'Move a trip or cut a duty. The dot at the top turns orange: there are changes not saved.', 'rf-gantt', ['draft']],
     ['DISCARD it', 'DISCARD forgets your changes and goes back to what was saved.', 'rf-discard', ['discarded']],
     ['Make a change again', 'Any change will do.', 'rf-gantt', ['draft']],
-    ['SAVE it', "SAVE makes it the company's planning: the roster, the day and the game run it now. The dot turns green.", 'rf-save', ['saved']],
+    ['SAVE it', "SAVE makes it the company's planning: the roster and the days run it now. The dot turns green.", 'rf-save', ['saved']],
   ]],
 ];
 
@@ -285,7 +282,7 @@ export function startTour(at) {
   tutSet({ menu: false, sheet: false, lesson: null, tour: { plan: STOPS.map((_, k) => k), at: Math.max(0, Math.min(STOPS.length - 1, at)), forward: true, waited: 0, home: { view: S.rf.view, tab: S.rf.tp.tab } } });
 }
 
-/** The tour over (`tour::finish`): the player's place back, where it was left kept. */
+/** The tour over: the planner's place back, where it was left kept. */
 export function leaveTour(completed) {
   const t = S.rf.tut.tour;
   if (!t) return;
@@ -298,13 +295,6 @@ export function leaveTour(completed) {
 
 /** Begin lesson `id`: the company kept as it is now. */
 export async function beginLesson(id) {
-  // (company multiplayer: a lesson puts the company back as it found it - the boss's, which the
-  // others plan with too: his launcher's alone)
-  if (S.co?.remote) {
-    tutSet({ menu: false });
-    say(tr("Lessons change the company and put it back: they are for the boss's own launcher. The tour and the help sheet work here."), true);
-    return;
-  }
   await rfCmd('rf_tut_act', { act: 'begin', lesson: id }).catch(() => {});
   const p = probe();
   const steps = LESSONS.find((l) => l[0] === id)[2];
@@ -330,7 +320,7 @@ export async function endLesson(undo) {
 export function Tutorial({ p, size }) {
   const r = S.rf;
   const t = r.tut;
-  // (the tour by itself the first time a driver opens RosterFlow, once its opening has played;
+  // (the tour by itself the first time a planner opens RosterFlow, once its opening has played;
   // not over a dialog or the company's question)
   useEffect(() => {
     if (r.intro || t.tour || t.lesson || S.co.dialog || S.co.shell?.asking || S.boot?.selftest) return;
@@ -659,7 +649,7 @@ const GLOSSARY = [
   ['slot', 'Drop slot', 'Where something picked up may go, with stars for how good it is: blue breaks no rule, red breaks one.'],
   ['stack', 'Stack', 'Trips no bus drives yet. They wait above the rows until you give them a bus.'],
   ['lock', 'Locked rows', 'A locked bus or duty stays as it is: OPTIMIZE and your other edits leave it alone.'],
-  ['draft', 'Draft', 'Your changes before SAVE (orange dot). The game keeps running the saved planning (green dot) until you save.'],
+  ['draft', 'Draft', 'Your changes before SAVE (orange dot). The roster keeps running the saved planning (green dot) until you save.'],
   ['pvr', 'PVR', 'Peak vehicle requirement: the most buses out at the same time. That is how many buses the day needs.'],
   ['band', 'Time band', 'A part of the day with its own running times: the rush hour is often slower than the evening.'],
   ['running', 'Running time', 'The minutes a bus needs from one stop to the next.'],

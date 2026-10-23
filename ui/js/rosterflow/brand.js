@@ -1,5 +1,4 @@
-// RosterFlow's name, its mark and its opening (`crates/omsi-launcher-ui/src/company/planning/
-// rf_brand.rs`). The mark is a scheduler's Gantt in small: three trip chips on a time axis,
+// RosterFlow's name, its mark and its opening. The mark is a scheduler's Gantt in small: three trip chips on a time axis,
 // staggered as a bus's day hands over to the next - blue, amber and teal, the middle one
 // pointing back. When RosterFlow opens, the chips slide in along the axis and settle into the
 // mark, the name and "Bus Scheduling & Crew Rostering" come up beside it, and the studio fades

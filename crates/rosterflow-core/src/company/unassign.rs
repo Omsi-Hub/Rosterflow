@@ -1,13 +1,13 @@
-//! Taking a driver off a duty, or a bus off a tour, on a day's roster (testers, 2026-10-14: "need
-//! an easier way to deallocate a driver or a bus"). What is taken off is what the day shows
+//! Taking a driver off a duty, or a bus off a tour, on a day's roster: an easy way to deallocate
+//! a driver or a bus. What is taken off is what the day shows
 //! (`plan::day_plan`): the dispatcher's choice for the day is taken back (`plan::set_fill`), the
 //! central's cover of what fell out is given up - its trips are dropped today, with the
 //! contract's penalty - and else the roster's own entry goes (`plan::set_driver`,
-//! `plan::set_bus`; the weekday's, so every week). A rental bus taken off is not rented: the
-//! close rents only the rental buses the day still has (`plan::settle_morning`).
+//! `plan::set_bus`; the weekday's, so every week). A rental bus taken off is not rented: only
+//! the rental buses the day still has are hired.
 //!
-//! What has begun on the company's day, what the player drove already and what the game runs
-//! now stays, with the reason why. The pieces of a duty joined in the studio lose their driver
+//! What has begun on the company's day, what has been driven already and what is running now
+//! stays, with the reason why. The pieces of a duty joined in the studio lose their driver
 //! together, as "Give to" gave them together.
 
 use super::model::{Cents, Company};

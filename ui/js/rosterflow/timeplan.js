@@ -1,5 +1,4 @@
-// RosterFlow's Timeplan (`crates/omsi-launcher-ui/src/company/planning/timeplan.rs`; Luc: the
-// company's planning should look and work "exactly" like Optibus Planning): a line's running
+// RosterFlow's Timeplan (it looks and works like Optibus Planning): a line's running
 // times and its timetable, in Optibus's dark slate look with one sky-blue accent - orange for
 // what was typed over and for warnings, a red "!" for errors - and the light look made of it.
 //
@@ -230,8 +229,8 @@ async function newLine() {
   setRf({ view: 4, rt: { sel: r.id }, hand: null, zones: null, sel: [], card: null, menu: null, panel: null });
 }
 
-/** How much of the context bar gives way so that nothing is cut off at its right end (Luc, Beta
- * 65: the screens' switch and Save were cut off in a narrow window or at a large Launcher size),
+/** How much of the context bar gives way so that nothing is cut off at its right end (else the
+ * screens' switch and Save are cut off in a narrow window or at a large text size),
  * measured whenever its width or what it shows changes: 0 nothing, 1 New line, Copy timings and
  * Save as icons and the week's days narrower, 2 the week's days left out (the day group stays),
  * 3 the bar in two rows (`onHeight` its height). */
@@ -315,7 +314,7 @@ function ContextBar({ v, onHeight }) {
   </div>`;
 }
 
-/** "Copy timings to…" beside the day group (Luc, Beta 65): the running times of the day group
+/** "Copy timings to…" beside the day group: the running times of the day group
  * shown copied to the other day groups ticked, for both directions or the one shown - their trips
  * following them, as a change of the running times moves them (`timeplan::copy_runs`). */
 function RunCopy({ v, top }) {
@@ -340,7 +339,7 @@ function RunCopy({ v, top }) {
   </div>`;
 }
 
-/** The days of the coming week that use the timetable shown (Trello #100): each day lit when it
+/** The days of the coming week that use the timetable shown: each day lit when it
  * runs this day group's timetable, marked when it runs another than its weekday's (a holiday's);
  * a click shows the day group it runs - its weekday's when it runs none of the line's trips (or
  * is still being read). */

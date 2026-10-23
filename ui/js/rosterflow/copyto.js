@@ -1,5 +1,4 @@
-// RosterFlow's "Copy to…" (testers, Beta 56: "a copy button to copy it to another day. that may
-// work better"): the rows ticked in Vehicles or Drivers - buses' blocks or duties - copied to
+// RosterFlow's "Copy to…": the rows ticked in Vehicles or Drivers - buses' blocks or duties - copied to
 // other days by themselves (`rf_act` "copy_rows", the core's `plandays::copy_rows`): the day
 // switcher's days ticked, every day of this day type at a click, each every week or that date
 // only. Only the trips that match there go along; the rest are listed (`days.js`' report). Ctrl+C

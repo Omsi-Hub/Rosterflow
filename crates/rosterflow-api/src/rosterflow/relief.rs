@@ -1,4 +1,4 @@
-//! RosterFlow's relief points in the page (Luc 2026-10-14, the core's `rosterflow::ReliefPoint`
+//! RosterFlow's relief points in the page (the core's `rosterflow::ReliefPoint`
 //! and `studio::cut_mid`): Preferences › Relief Points and Duty Travel's lists, and on the board
 //! the trips cut at a relief point on the way and the stops on the way a trip can be cut at.
 

@@ -1,4 +1,4 @@
-//! Luc's Beta 65 reports on splitting and locking: a duty split keeps its row and the half split
+//! Splitting and locking: a duty split keeps its row and the half split
 //! off gets a new one at the bottom (#5); a split leaves every other duty as it is (#6); a locked
 //! duty keeps its own pieces only - a later trip of its bus can still be cut for a relief (#8);
 //! Optimise and Discard leave what is locked as it is (#9).
@@ -124,7 +124,7 @@ fn a_split_leaves_every_other_duty_as_it_is() {
     let joined = before.iter().find(|(_, t)| t.len() == 8).cloned().expect("the duty on both buses");
     let blocks: Vec<Vec<String>> = day(&c, &l).iter().map(|t| t.trips.iter().map(|x| x.name.clone()).collect()).collect();
     // bus 2's first piece cut after its second trip: the joined duty has a piece of bus 2 too,
-    // and was taken apart with every other duty of the bus (Beta 65)
+    // and was taken apart with every other duty of the bus
     let tours = day(&c, &l);
     st::cut(&mut c, w, &tours, at(&tours, "2"), 2).unwrap();
     let after = duties_now(&c, &l);
@@ -191,7 +191,7 @@ fn a_locked_duty_keeps_its_own_pieces_and_the_rest_of_its_bus_can_be_cut() {
     let one = at(&tours, "1");
     // inside the locked duty's piece: refused
     assert_eq!(st::cut(&mut c, w, &tours, one, 2), Err(st::DUTY_LOCKED));
-    // a later trip of the same bus, another driver's (Beta 65: refused, the bus held a locked
+    // a later trip of the same bus, another driver's (once refused, the bus held a locked
     // duty's piece): a relief there
     assert_eq!(st::cut(&mut c, w, &tours, one, 6), Ok(()));
     let after = duties_now(&c, &l);

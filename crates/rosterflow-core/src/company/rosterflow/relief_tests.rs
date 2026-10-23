@@ -1,6 +1,5 @@
-//! Relief points with their own travel, and drivers changing halfway along a trip (Luc,
-//! 2026-10-14): the travel looked up, a block cut on the way, the day's close of a trip two
-//! duties share.
+//! Relief points with their own travel, and drivers changing halfway along a trip: the travel
+//! looked up, a block cut on the way, Optimise keeping to the points, and the deadheads.
 
 use super::super::network::{tours_of_day, PlannedTrip, TourOfDay};
 use super::super::studio::{self as st, DutyTarget};
@@ -63,7 +62,7 @@ fn wd(c: &Company) -> u8 {
     super::super::plan::weekday_of(&c.date)
 }
 
-/// Mitte as a relief point the player added on line 5's way.
+/// Mitte as a relief point the planner added on line 5's way.
 fn mitte() -> ReliefPoint {
     ReliefPoint { stop: "Mitte".into(), added: true, line: "Linie5".into(), ..Default::default() }
 }

@@ -1,5 +1,4 @@
-// Where RosterFlow's parts are drawn, by name (`tour::anchor` of our game-drawn launcher): the
-// guided tour lights them and a lesson's guide rings them. A part drawn on a canvas says where
+// Where RosterFlow's parts are drawn, by name: the guided tour lights them and a lesson's guide rings them. A part drawn on a canvas says where
 // it lies when it is drawn (`anchor`); one of the page's elements says it by its `data-rf`.
 // Every place is in the RosterFlow page's own units (its top left 0, 0).
 

@@ -1,6 +1,6 @@
-//! Interlining (a tester, 2026-10-19: "all routes can interline together"): Optimise chains trips
-//! of different lines onto one bus where they interline, a trip moves by hand onto a bus of
-//! another line, the day and the game's plan keep each trip's own line, and an old save loads as
+//! Interlining (all routes may interline together): Optimise chains trips of different lines onto
+//! one bus where they interline, a trip moves by hand onto a bus of another line, the day and its
+//! plan keep each trip's own line, and an old save loads as
 //! it was - every bus keeping to its line.
 
 use super::super::studio::{self as st, Target};

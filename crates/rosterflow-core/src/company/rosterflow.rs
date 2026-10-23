@@ -1,15 +1,15 @@
-//! RosterFlow, the bus company's scheduling studio (Luc: the planning should look and work
-//! "exactly" like Optibus's scheduling module, under a name of its own): what it adds to the
+//! RosterFlow, the bus company's scheduling studio (it looks and works like Optibus's scheduling
+//! module, under a name of its own): what it adds to the
 //! blocks and duties of `studio` - its preferences (the rules the duties are checked against,
 //! hard or soft with a penalty, and what Optimise works to), the locks, links and duty notes
 //! of each weekday, the duties' shape (sign-on and sign-off, travel to a relief point, relief
 //! timing, breaks, duty types, paid time), the issues it validates, its figures, the draft the
-//! player edits until he saves it, and Optimise itself.
+//! planner edits until he saves it, and Optimise itself.
 //!
-//! What the game runs is what is saved: the draft (`Flow::draft`) is the studio's alone until
-//! "Save" (`save_draft`) - the roster, the day's close and the game keep the saved blocks and
-//! duties meanwhile. The relief points are the depot, the lines' termini and the stops on the
-//! way the player adds (`ReliefPoint`, Luc 2026-10-14: halfway along a trip too), each with what
+//! What the day runs is what is saved: the draft (`Flow::draft`) is the studio's alone until
+//! "Save" (`save_draft`) - the roster and the day's plan keep the saved blocks and duties
+//! meanwhile. The relief points are the depot, the lines' termini and the stops on the way the
+//! planner adds (`ReliefPoint`, halfway along a trip too), each with what
 //! it may be used for and its own travel times (`travel_between`).
 
 use super::model::{Cents, Company};
@@ -182,7 +182,7 @@ pub struct DutyType {
     pub end_by: i32,
     /// The spread (sign-on to sign-off) at most.
     pub max_length: i32,
-    /// The spread at least (0: no least; a tester, 2026-10-15: "the shortest a duty can be").
+    /// The spread at least (0: no least; the shortest a duty can be).
     pub min_length: i32,
     pub split: Tri,
     pub allowed: bool,
@@ -232,7 +232,7 @@ pub struct Prefs {
     /// The bus's check before it leaves the depot and after it is back.
     pub pre_trip: i32,
     pub post_trip: i32,
-    /// Interlining (a tester, 2026-10-19: "all routes can interline together"): a bus's day may
+    /// Interlining (all routes may interline together): a bus's day may
     /// run trips of different lines - Optimise chains them where one ends where the next
     /// begins, or a short run empty away, and a trip is moved by hand onto a bus of another
     /// line. Off by default, an old save's too. The lines of `interline_not` keep to their own
@@ -270,7 +270,7 @@ pub struct Prefs {
     pub public: i32,
     pub car: i32,
     /// Relief points: the depot's and the termini's settings, and the stops on the way the
-    /// player added (`ReliefPoint`); travel between two of them (`TravelPair`).
+    /// planner added (`ReliefPoint`); travel between two of them (`TravelPair`).
     pub points: Vec<ReliefPoint>,
     pub pairs: Vec<TravelPair>,
     /// Duty breaks: a duty working more than `meal_after` needs a break of `meal.value`, begun
@@ -281,8 +281,8 @@ pub struct Prefs {
     pub continuous: Limit,
     pub break_min: i32,
     /// A gap in a duty this long or longer is a break (labelled in the Gantt, counted by the
-    /// meal and continuous rules); a shorter one is standing time (testers: "if over a figure eg
-    /// 15 mins then it shows something as a break").
+    /// meal and continuous rules); a shorter one is standing time (from, say, 15 minutes on
+    /// a gap shows as a break).
     pub break_from: i32,
     /// A layover inside a piece counts as a break (Optibus's "attendance counts as break").
     pub layover_breaks: bool,
@@ -388,11 +388,11 @@ fn interline_gap<T: Borrow<TourOfDay>>(c: &Company, tours: &[T], all: &[&Planned
 
 // --- relief points and travel ------------------------------------------------------------------
 //
-// The tester (2026-10-14): "not every start point will have the same definitions". The depot and
-// every line's termini are relief points by themselves, and the player adds stops on a line's way
+// Not every start point has the same definitions. The depot and every line's termini are relief
+// points by themselves, and the planner adds stops on a line's way
 // (a stop several lines share is one point). Each says what it may be used for - a duty begins
 // or ends there, drivers change on the bus there, a break is taken there - and how long a driver
-// takes to get there; between two points the player may set the minutes too. What is not set
+// takes to get there; between two points the planner may set the minutes too. What is not set
 // falls back to the point's own, then to the defaults (`Prefs::travel`, `walk` ...).
 
 /// The depot as a relief point: all of its names are this one point.
@@ -404,7 +404,7 @@ pub const DEPOT_POINT: &str = "Depot";
 pub struct ReliefPoint {
     /// Its stop as the timetable names it (`DEPOT_POINT` for the depot).
     pub stop: String,
-    /// A stop on the way the player added (else the depot or a terminus, there by itself).
+    /// A stop on the way the planner added (else the depot or a terminus, there by itself).
     pub added: bool,
     /// The line it was picked on (an added stop).
     pub line: String,
@@ -527,8 +527,8 @@ pub fn point<'a>(p: &'a Prefs, key: &str) -> Option<&'a ReliefPoint> {
 }
 
 /// What `place` may be used for as a relief point (`tours` the day's), None where it is none:
-/// not the depot, no terminus, no stop the player added. The depot and the termini allow
-/// everything until the player says otherwise.
+/// not the depot, no terminus, no stop the planner added. The depot and the termini allow
+/// everything until the planner says otherwise.
 pub fn uses_at(c: &Company, tours: &[TourOfDay], place: &str) -> Option<Uses> {
     let key = point_key(c, tours, place);
     if key.is_empty() {
@@ -575,8 +575,8 @@ pub fn travel_between(c: &Company, tours: &[TourOfDay], from: &str, to: &str, wa
 
 // --- deadheads ------------------------------------------------------------------------------------
 //
-// The tester (2026-10-19): "Dead heads are broken ... specify deadheads". A bus running empty from
-// where one trip ends to where its next begins took the line's quickest trip between the two,
+// Deadheads are set by the planner. A bus running empty from where one trip ends to where its
+// next begins took the line's quickest trip between the two,
 // else five minutes and three kilometres: estimated, an issue on every block. Preferences ›
 // Deadheads sets them: between two relief points (the way back the same unless set too), else to
 // or from a point (the one the bus goes to first), else the line's trip, else the defaults.
@@ -592,7 +592,7 @@ pub struct DeadheadPair {
     pub km: Option<f64>,
 }
 
-/// A bus's run without passengers between two places: how long, how far, and whether the player
+/// A bus's run without passengers between two places: how long, how far, and whether the planner
 /// set its time (else it is estimated).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Deadhead {
@@ -653,7 +653,7 @@ pub struct PointRow {
 }
 
 /// The company's relief points (`lines` the timetable read): the depot, every line's termini,
-/// and the stops on the way the player added - a stop several lines share once.
+/// and the stops on the way the planner added - a stop several lines share once.
 pub fn relief_points(c: &Company, lines: &[LineInfo]) -> Vec<PointRow> {
     let p = &c.planning.flow.prefs;
     let tours = network::timetable_tours(c, lines);
@@ -759,7 +759,7 @@ pub struct Custom {
 /// The kinds of custom work offered (translated when shown).
 pub const CUSTOM_KINDS: [&str; 4] = ["Spare", "Office", "Union", "Training"];
 
-/// What the player set of a duty, by its first piece: its type, its lock, how its driver
+/// What the planner set of a duty, by its first piece: its type, its lock, how its driver
 /// travels between pieces, its custom work, its signing and its paid time.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct DutyNote {
@@ -808,7 +808,7 @@ pub struct Spare {
     pub kind: Option<String>,
     #[serde(default)]
     pub paid: Option<i32>,
-    /// Its name, the player's ("Early spare"), shown beside its number.
+    /// Its name, the planner's ("Early spare"), shown beside its number.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub name: String,
     /// Where its driver signs on and stands by: a relief point's key (None: where the company
@@ -869,7 +869,7 @@ pub fn spare_label(c: &Company, id: u32) -> String {
 
 /// The spare lines of `date` as saved (the drafts the studio has not saved are not run): the
 /// spare work ("Spare" custom work) of the spare duties of the day's plan (`plandays::slot_of`),
-/// each with its times as the player set them, by its start.
+/// each with its times as the planner set them, by its start.
 pub fn spare_lines(c: &Company, date: &str) -> Vec<SpareLine> {
     let slot = super::plandays::slot_of(c, date);
     let company_at = c.planning.flow.prefs.sign_on_at.clone().filter(|x| !x.trim().is_empty());
@@ -909,7 +909,7 @@ impl Sheet {
 }
 
 /// The duties of a weekday in the order the Drivers tab shows them, by their keys (`duty_key`),
-/// top down - their numbers (1001 on) go by it. Luc (Beta 65): a duty split keeps its row and
+/// top down - their numbers (1001 on) go by it. A duty split keeps its row and
 /// its number, the half split off gets a row of its own at the bottom; an edit never shuffles
 /// the other rows (in the order of their start, a new duty pushed every later one a row down).
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
@@ -918,7 +918,7 @@ pub struct RowOrder {
     pub keys: Vec<PieceRef>,
 }
 
-/// What the player changed and has not saved yet: the blocks, the joined duties and the sheet
+/// What the planner changed and has not saved yet: the blocks, the joined duties and the sheet
 /// as the studio shows them.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 #[serde(default)]
@@ -939,7 +939,7 @@ pub struct Flow {
     /// (`plandays`). Kept outside the draft: a copy is made as it is saved.
     #[serde(skip_serializing_if = "super::plandays::Days::is_empty")]
     pub days: super::plandays::Days,
-    /// How the Gantt colours the trips (Layers › Colour by, testers 2026-10-15): "trip" by the
+    /// How the Gantt colours the trips (Layers › Colour by): "trip" by the
     /// timetable's trip, "block" by the bus, "duty" by the duty; empty by the line.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub colour_by: String,
@@ -1037,7 +1037,7 @@ pub fn save_draft_following(c: &mut Company, week: &[(String, Vec<LineInfo>)]) -
     Some(out)
 }
 
-/// Whether the draft has changes of `weekday`'s blocks or duties not saved (the day's close
+/// Whether the draft has changes of `weekday`'s blocks or duties not saved (the day
 /// runs the saved ones and says so).
 pub fn draft_differs(c: &Company, weekday: u8) -> bool {
     let Some(d) = c.planning.flow.draft.as_ref() else {
@@ -1049,7 +1049,7 @@ pub fn draft_differs(c: &Company, weekday: u8) -> bool {
 }
 
 /// "Discard": the draft forgotten, back to what was saved - but what the draft locks stays as the
-/// draft has it (Luc, Beta 65: "a locked duty can still be changed by Discard"): the locks, the
+/// draft has it (Discard must not change a locked duty): the locks, the
 /// locked buses' blocks and those with a piece of a locked duty, the locked duties' joins and
 /// notes, the locked spare duties (`keep_locked`). Returns whether there was a draft; the draft
 /// left is what was kept that the saved planning has otherwise.
@@ -1463,8 +1463,8 @@ fn set_rows(c: &mut Company, weekday: u8, keys: Vec<PieceRef>, by_start: &[Piece
 /// What one of RosterFlow's lessons ("Try it") may change in the company, kept before the
 /// lesson begins so that "Undo the lesson" puts it all back: the saved blocks and joined
 /// duties, RosterFlow's own (its preferences, its sheet and the draft), and the lines' colours.
-/// The roster of drivers and buses, the money and the clock are not a lesson's and stay as
-/// they are.
+/// The roster of drivers and buses and the company's other records are not a lesson's and stay
+/// as they are.
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct Snapshot {
     pub layouts: Vec<LineLayout>,
@@ -1933,10 +1933,10 @@ pub fn timeplan_line_of(i: &Issue) -> Option<&str> {
     (i.text == I_NO_TIMETABLE).then(|| i.args.iter().find(|(k, _)| *k == "line").map(|(_, v)| v.as_str())).flatten()
 }
 
-/// What the day's roster has open (testers: "the tour was covered showing no issues" - the
-/// blocks and duties were in order while the day's plan had a tour without its bus or a duty
-/// whose driver was ill): each tour or duty that fell out, an error while it is open and a
-/// warning once it is covered for the day; and the tours in service nobody is planned for.
+/// What the day's roster has open (the blocks and duties may be in order while the day's plan has a
+/// tour without its bus or a duty whose driver is ill): each tour or duty that fell out, an error
+/// while it is open and a warning once it is covered for the day; and the tours in service nobody
+/// is planned for.
 pub fn day_issues(dp: &super::plan::DayPlan) -> Vec<Issue> {
     use super::plan::Problem;
     let mut out = Vec::new();
@@ -2420,7 +2420,7 @@ pub struct MealDue {
 
 /// A duty's breaks and its driving periods between them as the rules see them: the issues
 /// (`check_breaks`), the Gantt's labels and band and the duty panel all take them from here, so
-/// the picture and the issues agree (testers: "it does not tell me so it's a bit of guesswork").
+/// the picture and the issues agree, and the planner need not guess.
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct BreakPlan {
     pub breaks: Vec<DutyBreak>,
@@ -2807,7 +2807,7 @@ struct Cut {
 /// at a relief point that allows it, or running empty from where one trip ends to where the next
 /// begins (a line run one way only, a terminus whose stops for arriving and leaving differ).
 /// (Optimise asked the bus to stand at one stop: it never cut such a block, and its duties broke
-/// the hard rules - testers, 2026-10-15: "optimise feature do not work".)
+/// the hard rules.)
 fn change_points(c: &Company, tours: &[TourOfDay], i: usize) -> Vec<usize> {
     let t = &tours[i];
     (1..t.trips.len()).filter(|&k| t.trips[k].counts() && t.trips[..k].iter().any(|x| x.counts()) && st::may_change(c, tours, &t.line, &t.trips[k - 1], &t.trips[k])).collect()
@@ -3260,7 +3260,7 @@ pub fn texts() -> Vec<&'static str> {
     out
 }
 
-/// A duty's own sign-on, sign-off and break points (testers, 2026-10-15).
+/// A duty's own sign-on, sign-off and break points.
 pub mod signing;
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-// The company's money as the pages write it themselves (Beta 62): in the company's currency,
+// The company's money as the pages write it themselves: in the company's currency,
 // as `words::eur` writes it. The shell hands its look (`company::shell`'s `money`: the code, the
 // rate to the euro, the symbol and where it goes, the marks, a fine amount's decimals); before a
 // company is open, the euro as the page's language writes it. Money is kept in euro cents.

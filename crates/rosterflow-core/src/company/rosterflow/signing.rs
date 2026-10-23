@@ -1,5 +1,5 @@
-//! Where a duty signs on and off and takes its breaks (testers, Beta 56: "Would be nice to
-//! specify the Starting Point for sign on & Sign Off and then break locations"): a relief point
+//! Where a duty signs on and off and takes its breaks (its own starting point for sign-on and
+//! sign-off, and its break locations): a relief point
 //! that allows it (`ReliefPoint::sign`, `breaks`) chosen for the duty (`DutyNote::sign_on_at`,
 //! `sign_off_at`, `breaks_at`), else the company's (`Prefs::sign_on_at`, `sign_off_at`), else -
 //! as before - where the bus is. The driver travels between the point and the bus as the relief

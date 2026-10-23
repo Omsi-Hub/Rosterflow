@@ -91,8 +91,7 @@ input[type=search]::-webkit-search-cancel-button { filter: grayscale(1); }
 .hub-settings .setting-row > .hub-switch, .hub-settings .setting-row > .hub-slider { width: 100%; }
 .hub-settings .hub-caps { margin: 0 0 6px; }
 
-/* the service record's pieces, as the old launcher's styles.css had them (hub.css gives them
-   Omsi-Hub's look) */
+/* the service record's pieces: plain layout helpers (the theme's tokens give them their look) */
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
 .ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .num { font-variant-numeric: tabular-nums; }
@@ -107,6 +106,5 @@ input[type=search]::-webkit-search-cancel-button { filter: grayscale(1); }
 .table th { text-align: left; padding: 8px 10px; white-space: nowrap; }
 .table td { padding: 9px 10px; vertical-align: middle; }
 .line-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 24px; padding: 0 7px; font-variant-numeric: tabular-nums; }
-/* (a labelled field on a page in the sheet, as the old launcher's styles.css laid it out: the
-   label above) */
+/* (a labelled field on a page in the sheet: the label above) */
 .hub-page-body .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }

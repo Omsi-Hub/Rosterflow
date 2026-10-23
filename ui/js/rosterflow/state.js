@@ -1,8 +1,8 @@
-// What RosterFlow's page keeps (`rosterflow::Rf` of our game-drawn launcher, without what the
-// Rust side keeps: the board, undo and redo, the proposal, the Timeplan's line): the tab and the
-// day shown, the Gantt's zoom and scroll, what is chosen and taken up, the card, the menu and
-// the panel open, the filter, the stats, the layers - and the commands (`rf_*` of
-// `omsi-launcher-api`'s `omsihub/rosterflow.rs`), what they say said in the company's corner.
+// What RosterFlow's page keeps (without what the Rust side keeps: the board, undo and redo, the
+// proposal, the Timeplan's line): the tab and the day shown, the Gantt's zoom and scroll, what is
+// chosen and taken up, the card, the menu and the panel open, the filter, the stats, the layers -
+// and the commands (`rf_*` of `rosterflow-api`'s `rosterflow.rs`), what they say said in the
+// company's corner.
 
 import { S, set } from '../store.js';
 import { call } from '../api.js';
@@ -78,13 +78,11 @@ export function setPart(part, patch) {
   setRf((r) => ({ [part]: { ...r[part], ...(typeof patch === 'function' ? patch(r[part]) : patch) } }));
 }
 
-/** A command of RosterFlow's in the page's language (company multiplayer: on the company of a
- * session joined, `S.co.remote`, relayed to the boss's launcher - all but the tutorial's, which
- * is this launcher's own: `together::relay::relayed_rf`). */
+/** A command of RosterFlow's in the page's language. */
 export const rfCmd = (name, args = {}) => call(name, { ...args, lang: language() });
 
-/** RosterFlow on the company of a session joined, and what the player's role lets him do there
- * (`rosterflow::relayed`'s `remote`: plans, lines, assign, why not). */
+/** RosterFlow opened read-only on a company planned elsewhere, and what this planner may do there
+ * (plans, lines, assign, why not): never so here, always null. */
 export const rfRemote = () => null;
 
 /** Something said in the company's corner (`set_status`). */
@@ -111,8 +109,8 @@ export function told(list) {
   say(was && Date.now() - was.at < 2000 ? `${was.text} ${text}` : text, false);
 }
 
-/** The company's generation as RosterFlow counts it (`rf_gen`: a playing clock's quiet minutes
- * left out, `rosterflow::rf_generation`); the whole generation from a backend without it. What
+/** The company's generation as RosterFlow counts it (`rf_gen`,
+ * `rosterflow::rf_generation`); the whole generation from a backend without it. What
  * RosterFlow's tabs read again on. */
 export const rfGen = () => S.co.shell?.rf_gen ?? S.co.shell?.gen ?? 0;
 

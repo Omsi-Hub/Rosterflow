@@ -32,9 +32,36 @@ const LINES: [(&str, &str, &[&str], &[f32], f32, f32, f32); 3] = [
 ];
 
 const DRIVERS: [&str; 30] = [
-    "Anouk de Vries", "Bram Jansen", "Chantal Bakker", "Dennis Visser", "Esra Yilmaz", "Frank Smit", "Gerda Mulder", "Hamza El Amrani", "Iris de Boer", "Jeroen Peters",
-    "Kim Hendriks", "Lars van Dijk", "Mila Bos", "Noah Vermeulen", "Olga Kowalska", "Pieter de Wit", "Rachid Bouzid", "Sanne Dekker", "Thijs Brouwer", "Ufuk Demir",
-    "Vera Kok", "Wim Jacobs", "Xander de Graaf", "Yara Mertens", "Zoë Willems", "Ahmed Benali", "Bas Koster", "Carmen Ruiz", "Daan Prins", "Eva Huisman",
+    "Anouk de Vries",
+    "Bram Jansen",
+    "Chantal Bakker",
+    "Dennis Visser",
+    "Esra Yilmaz",
+    "Frank Smit",
+    "Gerda Mulder",
+    "Hamza El Amrani",
+    "Iris de Boer",
+    "Jeroen Peters",
+    "Kim Hendriks",
+    "Lars van Dijk",
+    "Mila Bos",
+    "Noah Vermeulen",
+    "Olga Kowalska",
+    "Pieter de Wit",
+    "Rachid Bouzid",
+    "Sanne Dekker",
+    "Thijs Brouwer",
+    "Ufuk Demir",
+    "Vera Kok",
+    "Wim Jacobs",
+    "Xander de Graaf",
+    "Yara Mertens",
+    "Zoë Willems",
+    "Ahmed Benali",
+    "Bas Koster",
+    "Carmen Ruiz",
+    "Daan Prins",
+    "Eva Huisman",
 ];
 
 /// `c` given the example network, fleet and staff.
@@ -77,7 +104,13 @@ pub fn fill(c: &mut Company) {
     c.depots = vec![rosterflow_core::company::Depot { name: c.depot.clone(), address: "Remiseweg 1".into() }];
     let models = [("VDL Citea SLF-120", BusSize::Solo, Drive::Diesel), ("VDL Citea SLF-120 Electric", BusSize::Solo, Drive::Electric), ("Mercedes-Benz Citaro G", BusSize::Articulated, Drive::Hybrid)];
     for k in 0..12usize {
-        let (name, size, drive) = models[if k < 6 { 0 } else if k < 10 { 1 } else { 2 }];
+        let (name, size, drive) = models[if k < 6 {
+            0
+        } else if k < 10 {
+            1
+        } else {
+            2
+        }];
         let number = c.next_fleet_number();
         c.counters.vehicle += 1;
         c.fleet.push(Vehicle {

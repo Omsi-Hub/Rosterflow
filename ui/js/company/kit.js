@@ -130,7 +130,7 @@ export function goKey(to) {
 
 // --- the pieces ---------------------------------------------------------------------------
 
-/** A Material Symbol by its name (every one the game-drawn launcher has). */
+/** A Material Symbol by its name (every one in `symbols.js`). */
 export function Icon({ name, size = 20, class: cls = '' }) {
   const d = SYMBOLS[name];
   const lines = !d && STROKES[name];
@@ -168,8 +168,7 @@ export function Figure({ f, small }) {
   </div>`;
 }
 
-/** A thin bar of 0..1 in a tone's colour, on a see-through track (`field`: on the field's grey,
- * as Casual's bars are drawn). */
+/** A thin bar of 0..1 in a tone's colour, on a see-through track (`field`: on the field's grey). */
 export function Meter({ frac, tone = 'accent', h = 6, style = '', field = false }) {
   const w = Math.max(0, Math.min(1, Number(frac) || 0)) * 100;
   return html`<div class="co-meter" style=${`height:${h}px;border-radius:${h / 2}px;${field ? 'background:var(--hub-field);' : ''}${style}`}><i style=${`width:${w}%;background:${fill(tone)}`}></i></div>`;
@@ -183,16 +182,14 @@ export function fill(tone, alpha = 1) {
   return `rgba(var(--co-white), ${seen(0.3 * alpha)})`;
 }
 
-/** The meanings' colours (`--co-*-fill`; the accent as Omsi-Hub's orange: `seen` hardly
- * depends on it). */
+/** The meanings' colours (`--co-*-fill`; the accent an orange: `seen` hardly depends on it). */
 const TONES = { ok: [52, 178, 110], warn: [232, 170, 70], danger: [217, 58, 48], early: [122, 168, 255], accent: [245, 134, 32], accent2: [249, 188, 132], line: [255, 210, 63] };
 const toLin = (c) => ((c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
 const toSrgb = (l) => 255 * (l <= 0.0031308 ? 12.92 * l : 1.055 * l ** (1 / 2.4) - 0.055);
 
-/** The rgba alpha that shows what the game-drawn launcher's alpha `a` of `top` shows: it
- * blends in linear light (stronger on the night, weaker on the cream), and its light look draws
- * a see-through white as see-through ink (`theme.rs`: overlay_alpha). As company.css's
- * `--aw-*` and `--ac-*` (launcher/tools/omsihub-linear-alpha.py). */
+/** The rgba alpha that shows what an alpha `a` of `top` blended in linear light shows (stronger
+ * on the dark ground, weaker on the cream); the light look draws a see-through white as
+ * see-through ink. As company.css's `--aw-*` and `--ac-*`. */
 export function seen(a, top = [255, 255, 255]) {
   const light = document.documentElement.dataset.theme === 'light';
   const under = light ? [252, 234, 208] : [9, 12, 24];
@@ -320,7 +317,7 @@ export function useEscLayer(onClose, over = false) {
 export const escTaken = () => layers.length > 0 || !!(S.co?.dialog || S.co?.popup || S.co?.cmdk);
 
 /** A dialog whose view is gone (its bus sold, its line given up) or failed closes itself (what
- * failed said) - not left open with nothing drawn, holding the clock as an open dialog does. */
+ * failed said) - not left open with nothing drawn. */
 export function useGone(v, close) {
   const gone = !!v && (!!v.gone || !!v.error);
   useEffect(() => {
@@ -349,7 +346,7 @@ export function Dialog({ icon, title, w = 560, h, onClose, foot, children, bodyS
 export function Popup({ p, onClose }) {
   const close = onClose || (() => setCo({ popup: null }));
   useEffect(() => {
-    // (taken before the button the player last clicked: Enter on it pressed it again, and the
+    // (taken before the button the planner last clicked: Enter on it pressed it again, and the
     // popup came straight back)
     const k = (e) => {
       if (e.key !== 'Enter') return;
@@ -402,8 +399,7 @@ export function useSize() {
 }
 
 let measure = null;
-/** How wide words are at a size of the game-drawn launcher (`Ui::width`: its px, drawn
- * smaller by 1.303 here). */
+/** How wide words are at a size of the design (its px, drawn smaller by 1.303 here). */
 export function textW(text, px, weight = 700) {
   if (!measure) measure = document.createElement('canvas').getContext('2d');
   measure.font = `${weight} ${px / 1.303}px "Hanken Grotesk", sans-serif`;

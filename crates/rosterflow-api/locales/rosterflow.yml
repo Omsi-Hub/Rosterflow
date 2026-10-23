@@ -51,13 +51,13 @@ _version: 2
   pl: "Ponowiono: %{edit}"
   ru: "Повторено: %{edit}"
   uk: "Повторено: %{edit}"
-"Saved: the roster, the day and the game run this planning now.":
-  de: "Gespeichert: Dienstplan, Tag und Spiel fahren jetzt diese Planung."
-  fr: "Enregistré : le roulement, la journée et le jeu suivent maintenant cette planification."
-  nl: "Opgeslagen: het rooster, de dag en het spel rijden nu deze planning."
-  pl: "Zapisano: grafik, dzień i gra działają teraz według tego planu."
-  ru: "Сохранено: график, день и игра теперь работают по этому плану."
-  uk: "Збережено: графік, день і гра тепер працюють за цим планом."
+"Saved: the roster and the days run this planning now.":
+  de: "Gespeichert: Dienstplan und Tage laufen jetzt nach dieser Planung."
+  fr: "Enregistré : le roulement et les journées suivent maintenant cette planification."
+  nl: "Opgeslagen: het rooster en de dagen volgen nu deze planning."
+  pl: "Zapisano: grafik i dni działają teraz według tego planu."
+  ru: "Сохранено: график и дни теперь работают по этому плану."
+  uk: "Збережено: графік і дні тепер працюють за цим планом."
 "Discarded: back to the saved planning.":
   de: "Verworfen: zurück zur gespeicherten Planung."
   fr: "Abandonné : retour à la planification enregistrée."
@@ -331,13 +331,13 @@ _version: 2
   pl: "Więcej wskaźników: przerwy, zmiany, czas płatny, rozpiętość, praca, jazda i czas na linii, histogramy"
   ru: "Больше показателей: разрывы, смены машин, оплачиваемое время, протяжённость, работа, вождение, время на линии, гистограммы"
   uk: "Більше показників: розриви, зміни машин, оплачуваний час, тривалість, робота, водіння, час на лінії, гістограми"
-"Make the changes the company's planning: the roster, the day and the game run it":
-  de: "Die Änderungen zur Planung des Betriebs machen: Dienstplan, Tag und Spiel fahren damit"
-  fr: "Faire des modifications la planification de l'entreprise : le roulement, la journée et le jeu la suivent"
-  nl: "Maak de wijzigingen de planning van het bedrijf: het rooster, de dag en het spel rijden ermee"
-  pl: "Uczyń zmiany planem firmy: grafik, dzień i gra działają według niego"
-  ru: "Сделать изменения планом компании: график, день и игра работают по нему"
-  uk: "Зробити зміни планом компанії: графік, день і гра працюють за ним"
+"Make the changes the company's planning: the roster and the days run it":
+  de: "Die Änderungen zur Planung des Betriebs machen: Dienstplan und Tage laufen danach"
+  fr: "Faire des modifications la planification de l'entreprise : le roulement et les journées la suivent"
+  nl: "Maak de wijzigingen de planning van het bedrijf: het rooster en de dagen volgen haar"
+  pl: "Uczyń zmiany planem firmy: grafik i dni działają według niego"
+  ru: "Сделать изменения планом компании: график и дни работают по нему"
+  uk: "Зробити зміни планом компанії: графік і дні працюють за ним"
 "Discard":
   de: "Verwerfen"
   fr: "Abandonner"

@@ -759,8 +759,24 @@ fn agency_cancel(s: &mut Session, no_: u32) -> Answer {
 const STOP_COLS: [&str; 6] = ["Code", "Name", "Latitude", "Longitude", "Relief point", "Notes"];
 const FLEET_COLS: [&str; 13] = ["Number", "Plate", "Model", "Size", "Drive", "Seats", "Standing", "Built", "From", "Until", "Depot", "Workshop until", "Notes"];
 const STAFF_COLS: [&str; 18] = [
-    "Number", "Name", "Role", "Phone", "Email", "Licence", "Licence valid until", "Endorsements", "Type trainings", "Hours a week", "Days a week", "Hourly wage", "Hired", "Leaves", "Holiday days",
-    "Days off", "Shift", "Notes",
+    "Number",
+    "Name",
+    "Role",
+    "Phone",
+    "Email",
+    "Licence",
+    "Licence valid until",
+    "Endorsements",
+    "Type trainings",
+    "Hours a week",
+    "Days a week",
+    "Hourly wage",
+    "Hired",
+    "Leaves",
+    "Holiday days",
+    "Days off",
+    "Shift",
+    "Notes",
 ];
 
 fn yes(b: bool) -> String {
@@ -789,7 +805,14 @@ fn export(s: &mut Session, what: &str, p: &dyn Platform) -> Answer {
         "stops" => {
             rows.push(head(&STOP_COLS));
             for st in &c.network.stops {
-                rows.push(vec![st.code.clone(), st.name.clone(), if st.lat != 0.0 { st.lat.to_string() } else { String::new() }, if st.lon != 0.0 { st.lon.to_string() } else { String::new() }, yes(st.relief), st.notes.clone()]);
+                rows.push(vec![
+                    st.code.clone(),
+                    st.name.clone(),
+                    if st.lat != 0.0 { st.lat.to_string() } else { String::new() },
+                    if st.lon != 0.0 { st.lon.to_string() } else { String::new() },
+                    yes(st.relief),
+                    st.notes.clone(),
+                ]);
             }
         }
         "fleet" => {
@@ -839,11 +862,15 @@ fn export(s: &mut Session, what: &str, p: &dyn Platform) -> Answer {
         }
         _ => return Err(format!("unknown list: {what}")),
     }
-    let name = format!("{} - {}.csv", c.name, tr(match what {
-        "stops" => "Stops",
-        "fleet" => "Fleet",
-        _ => "Staff",
-    }));
+    let name = format!(
+        "{} - {}.csv",
+        c.name,
+        tr(match what {
+            "stops" => "Stops",
+            "fleet" => "Fleet",
+            _ => "Staff",
+        })
+    );
     let Some(path) = p.save_path(&tr("Save as a spreadsheet"), &name, "CSV", &["csv"]) else { return Ok(json!({})) };
     std::fs::write(&path, csv::write(&rows)).map_err(|e| format!("{}: {e}", tr("Could not save the file")))?;
     Ok(done(trf("Saved: %{file}", &[("file", &path.display().to_string())])))
@@ -954,7 +981,9 @@ fn import_fleet(c: &mut Company, t: &Table) -> Result<(usize, usize, usize), Str
         if let Some(n) = csv::number(&cell(&["standing", "staanplaatsen"])) {
             v.standing = n as u32;
         }
-        for (field, names) in [(&mut v.built, &["built", "bouwjaar", "first registered"][..]), (&mut v.from, &["from", "in service", "vanaf"][..]), (&mut v.until, &["until", "out of service", "tot"][..])] {
+        for (field, names) in
+            [(&mut v.built, &["built", "bouwjaar", "first registered"][..]), (&mut v.from, &["from", "in service", "vanaf"][..]), (&mut v.until, &["until", "out of service", "tot"][..])]
+        {
             if t.col(names).is_some() {
                 let x = cell(names);
                 *field = if x.len() == 4 && x.chars().all(|c| c.is_ascii_digit()) { x } else { csv::date(&x) };

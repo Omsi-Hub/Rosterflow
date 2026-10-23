@@ -16,7 +16,7 @@ use super::network::{self, TourOfDay};
 use super::staff::{self, Block, BUS_MARGIN};
 use serde::{Deserialize, Serialize};
 
-/// The driver id an agency driver stands under in a closing day's plan.
+/// The driver id an agency driver stands under in a day's plan.
 pub const AGENCY: u32 = u32::MAX;
 /// The driver id a spare line's driver stands under as a late driver's cover (`LatePiece::cover`):
 /// this and the spare duty's id (`rosterflow::Spare`, `spare_lines`) - under the agency's booked
@@ -40,7 +40,7 @@ fn agency_sent_for(dp: &DayPlan, ti: usize, k: usize) -> bool {
 }
 
 /// `agency_used` by the duty: the pieces joined into one driver's duty in the studio take one
-/// agency driver together (testers: "it only applied to a part of it not the full thing").
+/// agency driver together, not one for each piece.
 pub fn agency_sent(c: &Company, dp: &DayPlan) -> usize {
     let slot = super::plandays::slot_of(c, &dp.date);
     let mut seen: Vec<(usize, usize)> = Vec::new();
@@ -58,8 +58,7 @@ pub fn agency_sent(c: &Company, dp: &DayPlan) -> usize {
 }
 
 /// Whether duty `k` of tour `ti` can have an agency driver for the day: always - the agency sends
-/// as many as are asked for (Luc, 2026-10-15: "you must be able to hire as many as you want"; it
-/// was two a day, and one more for every three drivers). Only what they cost limits them.
+/// as many as are asked for. Only what they cost limits them.
 pub fn agency_room(_c: &Company, _dp: &DayPlan, _ti: usize, _k: usize) -> bool {
     true
 }
@@ -168,8 +167,8 @@ pub struct Planning {
     #[serde(default)]
     pub week: Vec<RosterTour>,
     /// The dispatcher fills what the roster leaves free - only for "Fill the roster"
-    /// (`fill_day`), which shows the player what it would take and fixes it in the roster: the
-    /// day itself runs what is planned, nothing behind the player's back. (Not kept: an older
+    /// (`fill_day`), which shows the planner what it would take and fixes it in the roster: the
+    /// day itself runs what is planned, nothing behind the planner's back. (Not kept: an older
     /// file's "auto" is read as off.)
     #[serde(skip)]
     pub auto: bool,
@@ -187,14 +186,14 @@ pub struct Planning {
     #[serde(default)]
     pub fills: Vec<FillChoice>,
     /// The lines (their timetable names) the planning's chart shows folded to their heading
-    /// (Luc: "you must also be able to collapse and expand lines"); kept with the company.
+    /// (each line can be collapsed and expanded); kept with the company.
     #[serde(default)]
     pub collapsed: Vec<String>,
-    /// The scheduling studio's blocks, a line and a weekday at a time, as the player laid
+    /// The scheduling studio's blocks, a line and a weekday at a time, as the planner laid
     /// them out (`studio`): none, the timetable's tours cut automatically.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub layouts: Vec<super::studio::LineLayout>,
-    /// The duties the player joined from pieces of work (a split duty, or one that changes
+    /// The duties the planner joined from pieces of work (a split duty, or one that changes
     /// buses), a weekday at a time.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub joined: Vec<super::studio::JoinedDuty>,
@@ -243,8 +242,8 @@ impl Default for Planning {
 
 /// When a driver who comes late (`Disruption::Late`) arrives on a day: the sign-on of the first
 /// duty he had when it was first planned, and his minutes late. Kept, so that moved to another
-/// duty he is late only for one that begins before he is there (testers: "when a driver is late
-/// and you swap them onto a different duty this should stop them being late").
+/// duty he is late only for one that begins before he is there: swapped onto a later duty, he is
+/// no longer late.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Arrival {
     pub date: String,
@@ -644,7 +643,7 @@ pub fn fill_day_told(c: &mut Company, date: &str, tours: Vec<TourOfDay>) -> Fill
     fill(c, date, tours, None)
 }
 
-/// What the morning's repair of the roster did (Normal, `repair_day`).
+/// What the morning's repair of the roster did (`repair_day`).
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Repaired {
     /// The roster's places that could not run (duties and buses), and of them those given
@@ -662,7 +661,7 @@ impl Repaired {
 
 /// The roster's places of `date`'s weekday that cannot run that day: the tours whose bus is
 /// gone, broken down, in the workshop, not one of the line's or busy, and the duties whose
-/// driver is ill, away, not qualified or clashes. (The player's own duties and the agency's are
+/// driver is ill, away, not qualified or clashes. (The agency's duties are
 /// left as they are, and so are those of a driver on holiday: known ahead, the day covers them
 /// and the place stays theirs for when they are back - `day_plan`.)
 pub fn broken(c: &Company, date: &str, tours: Vec<TourOfDay>) -> (Vec<(String, String)>, Vec<(String, String, usize)>) {
@@ -694,10 +693,9 @@ pub fn broken(c: &Company, date: &str, tours: Vec<TourOfDay>) -> (Vec<(String, S
     (buses, duties)
 }
 
-/// The roster repaired for `date` (Normal's morning, Luc: "the roster repairs itself every
-/// morning"): each place of its weekday that cannot run that day (`broken`) is given to a
-/// driver or a bus that fits, as the dispatcher would; the good ones are kept, and nothing
-/// the roster left free is filled. What found nobody stays open.
+/// The roster repaired for `date`, every morning by itself: each place of its weekday that cannot
+/// run that day (`broken`) is given to a driver or a bus that fits, as the dispatcher would; the
+/// good ones are kept, and nothing the roster left free is filled. What found nobody stays open.
 pub fn repair_day(c: &mut Company, date: &str, tours: Vec<TourOfDay>) -> Repaired {
     let wd = weekday_of(date);
     let (buses, duties) = broken(c, date, tours.clone());
@@ -1268,8 +1266,8 @@ pub fn fits(e: &Employee, size: BusSize, work: &[Block], b: &Block, today: bool)
 
 // --- who could take a duty, and why not ----------------------------------------------------------
 
-/// Why a driver cannot take a duty, told exactly (testers were "confused by how it says drivers
-/// are free but unable to cover duties": the lists now say why).
+/// Why a driver cannot take a duty, told exactly (a driver who is free but cannot cover a duty
+/// is listed with the reason).
 #[derive(Clone, Debug, PartialEq)]
 pub enum Cannot {
     /// Not a driver (a mechanic, a cleaner...): only drivers drive.
@@ -1460,16 +1458,15 @@ pub fn late_covers(c: &Company, dp: &DayPlan, ti: usize, k: usize) -> Vec<(u32, 
     out.into_iter().map(|(_, busy, id)| (id, !busy)).collect()
 }
 
-/// What the trips of a duty (or a whole tour: `0..trips`) dropped cost on the line's bus
-/// contract: each journey its share of the day's payment, not paid (`bus_contracts`; a
-/// commercial line's nothing - it loses the passengers and some reputation).
+/// What the trips of a duty (or a whole tour: `0..trips`) dropped cost: each journey with
+/// passengers the planning's penalty for a dropped trip (`Planning::trip_penalty`).
 pub fn drop_penalty(c: &Company, t: &TourOfDay, start: usize, end: usize) -> Cents {
     let value = c.planning.trip_penalty;
     t.trips[start.min(t.trips.len())..end.min(t.trips.len())].iter().filter(|x| x.counts()).map(|_| value).sum()
 }
 
-/// A way to cover a duty that fell out or stayed free on the company's day (testers: "when
-/// drivers go sick, instead of dropping the shift give me the option to cover it").
+/// A way to cover a duty that fell out or stayed free on the company's day (a driver off sick:
+/// cover the duty rather than drop its trips).
 #[derive(Clone, Debug, PartialEq)]
 pub enum Cover {
     /// A colleague who may drive it (`standby`: free all day).
@@ -1493,7 +1490,7 @@ impl Cover {
 
 /// The ways to cover duty `k` of tour `ti` on the company's day, in the order to offer them:
 /// each free colleague who may drive it (standby drivers first), an agency driver from the
-/// agency (as many as are asked for), the player himself, dropping its trips. Those who cannot
+/// agency (as many as are asked for), dropping its trips. Those who cannot
 /// take it are `candidates` with their reasons.
 pub fn covers_of_duty(c: &Company, dp: &DayPlan, ti: usize, k: usize) -> Vec<Cover> {
     let t = &dp.tours[ti];

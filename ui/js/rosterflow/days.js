@@ -1,4 +1,4 @@
-// RosterFlow's plan copied to the other days it works with (Trello #100; the Rust side's
+// RosterFlow's plan copied to the other days it works with (the Rust side's
 // `rosterflow/days.rs` and the core's `plandays`): SAVE's "Apply to" window - this day only,
 // every day of its day type, every day with the same timetable, or from a date until a date;
 // the vehicles, the drivers or both; each day of the week with what a copy would match there -

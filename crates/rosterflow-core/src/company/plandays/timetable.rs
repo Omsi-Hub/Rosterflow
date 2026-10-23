@@ -1,7 +1,6 @@
-//! A line's timetable of one day copied to other days, and the templates (testers: "I can't
-//! copy a timetable from MF to SA or SU"; "a template for the given day so that it can be used
-//! on more days"; "copy the timetable that you've created for one day ... over to another day
-//! easily"): the Timeplan's "Copy to…" in its timetable.
+//! A line's timetable of one day copied to other days, and the templates (Monday to Friday's
+//! onto Saturday or Sunday; a day's timetable kept to use on more days; one day's timetable
+//! copied over to another): the Timeplan's "Copy to…" in its timetable.
 //!
 //! A plan's copy (`copy`, `copy_rows`) lays a day's buses and duties onto the trips the other
 //! day's timetable has: Saturday and Sunday run a timetable of their own, so a weekday's plan
@@ -17,11 +16,9 @@
 //! running times they were made with (so no time of theirs shows as typed over); "Add" puts the
 //! trips beside the day's own, a trip there already the same way at the same minute not twice.
 //!
-//! The copies are the player's own trips of the group they are copied to. A trip of a map's tour
-//! runs on the days of its tour's mask whatever group it says (`lines::trip_in_group`): a copy
-//! that kept its tour - or a trip merely given the weekend's group - would still run on weekdays
-//! only. A group's timetable replaced, the map's tours that ran then run on their other days only
-//! (their mask without the group's days).
+//! The copies are the planner's own trips of the group they are copied to: a trip runs on its own
+//! group of days, if the line's kind of service runs then (`lines::trip_in_group`). A group's
+//! timetable replaced, its trips are taken out and the copies take their place.
 
 use super::super::model::Company;
 use super::super::timeplan::{self as tp, RunPlan, RunSet};
@@ -113,9 +110,8 @@ pub fn trips_on(l: &LineDesign, day: usize) -> usize {
     l.table.iter().filter(|t| !t.times.is_empty() && tp::in_day(l, t, day)).count()
 }
 
-/// Day group `day` of `l` emptied: the player's trips of it taken out, and the map's tours
-/// that ran then run on their other days only (a tour left with no day goes with its trips).
-/// Returns how many trips the day had.
+/// Day group `day` of `l` emptied: the trips of it taken out. Returns how many trips the day
+/// had.
 pub fn clear_day(l: &mut LineDesign, day: usize) -> usize {
     let had = trips_on(l, day);
     l.table.retain(|t| t.day != day);

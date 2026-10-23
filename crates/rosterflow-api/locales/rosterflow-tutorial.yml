@@ -100,13 +100,13 @@ _version: 2
   pl: "Potem ZAPISZ"
   ru: "Затем СОХРАНИТЬ"
   uk: "Потім ЗБЕРЕГТИ"
-"Your changes in Vehicles and Drivers are a draft. SAVE makes them the company's planning: the roster, the day and the game run it. DISCARD throws the draft away and goes back to what was saved.":
-  de: "Ihre Änderungen unter Fahrzeuge und Fahrer sind ein Entwurf. SPEICHERN macht sie zur Planung des Unternehmens: Dienstplan, Tag und Spiel fahren danach. VERWERFEN wirft den Entwurf weg und kehrt zum Gespeicherten zurück."
-  fr: "Vos modifications dans Véhicules et Conducteurs sont un brouillon. ENREGISTRER en fait la planification de l'entreprise : le roulement, la journée et le jeu l'appliquent. ABANDONNER jette le brouillon et revient à ce qui était enregistré."
-  nl: "Je wijzigingen in Voertuigen en Chauffeurs zijn een concept. OPSLAAN maakt ze de planning van het bedrijf: het rooster, de dag en het spel rijden ermee. VERWERPEN gooit het concept weg en gaat terug naar wat was opgeslagen."
-  pl: "Zmiany w Pojazdach i Kierowcach to szkic. ZAPISZ czyni je planem firmy: grafik, dzień i gra działają według niego. ODRZUĆ wyrzuca szkic i wraca do tego, co było zapisane."
-  ru: "Ваши изменения в «Транспорте» и «Водителях» — это черновик. СОХРАНИТЬ делает их планом компании: по нему работают график, день и игра. ОТМЕНИТЬ выбрасывает черновик и возвращает сохранённое."
-  uk: "Ваші зміни в «Транспорті» та «Водіях» — це чернетка. ЗБЕРЕГТИ робить їх планом компанії: за ним працюють графік, день і гра. СКАСУВАТИ викидає чернетку й повертає збережене."
+"Your changes in Vehicles and Drivers are a draft. SAVE makes them the company's planning: the roster and the days run it. DISCARD throws the draft away and goes back to what was saved.":
+  de: "Ihre Änderungen unter Fahrzeuge und Fahrer sind ein Entwurf. SPEICHERN macht sie zur Planung des Unternehmens: Dienstplan und Tage laufen danach. VERWERFEN wirft den Entwurf weg und kehrt zum Gespeicherten zurück."
+  fr: "Vos modifications dans Véhicules et Conducteurs sont un brouillon. ENREGISTRER en fait la planification de l'entreprise : le roulement et les journées l'appliquent. ABANDONNER jette le brouillon et revient à ce qui était enregistré."
+  nl: "Je wijzigingen in Voertuigen en Chauffeurs zijn een concept. OPSLAAN maakt ze de planning van het bedrijf: het rooster en de dagen volgen haar. VERWERPEN gooit het concept weg en gaat terug naar wat was opgeslagen."
+  pl: "Zmiany w Pojazdach i Kierowcach to szkic. ZAPISZ czyni je planem firmy: grafik i dni działają według niego. ODRZUĆ wyrzuca szkic i wraca do tego, co było zapisane."
+  ru: "Ваши изменения в «Транспорте» и «Водителях» — это черновик. СОХРАНИТЬ делает их планом компании: по нему работают график и дни. ОТМЕНИТЬ выбрасывает черновик и возвращает сохранённое."
+  uk: "Ваші зміни в «Транспорті» та «Водіях» — це чернетка. ЗБЕРЕГТИ робить їх планом компанії: за ним працюють графік і дні. СКАСУВАТИ викидає чернетку й повертає збережене."
 "The title bar":
   de: "Die Titelleiste"
   fr: "La barre de titre"
@@ -1084,13 +1084,13 @@ _version: 2
   pl: "ZAPISZ ją"
   ru: "СОХРАНИТЕ его"
   uk: "ЗБЕРЕЖІТЬ її"
-"SAVE makes it the company's planning: the roster, the day and the game run it now. The dot turns green.":
-  de: "SPEICHERN macht es zur Planung des Unternehmens: Dienstplan, Tag und Spiel fahren jetzt danach. Der Punkt wird grün."
-  fr: "ENREGISTRER en fait la planification de l'entreprise : le roulement, la journée et le jeu l'appliquent désormais. Le point devient vert."
-  nl: "OPSLAAN maakt het de planning van het bedrijf: het rooster, de dag en het spel rijden er nu mee. De stip wordt groen."
-  pl: "ZAPISZ czyni ją planem firmy: grafik, dzień i gra działają teraz według niej. Kropka robi się zielona."
-  ru: "СОХРАНИТЬ делает его планом компании: график, день и игра теперь работают по нему. Точка станет зелёной."
-  uk: "ЗБЕРЕГТИ робить її планом компанії: графік, день і гра тепер працюють за ним. Крапка стане зеленою."
+"SAVE makes it the company's planning: the roster and the days run it now. The dot turns green.":
+  de: "SPEICHERN macht es zur Planung des Unternehmens: Dienstplan und Tage laufen jetzt danach. Der Punkt wird grün."
+  fr: "ENREGISTRER en fait la planification de l'entreprise : le roulement et les journées l'appliquent désormais. Le point devient vert."
+  nl: "OPSLAAN maakt het de planning van het bedrijf: het rooster en de dagen volgen haar nu. De stip wordt groen."
+  pl: "ZAPISZ czyni ją planem firmy: grafik i dni działają teraz według niej. Kropka robi się zielona."
+  ru: "СОХРАНИТЬ делает его планом компании: график и дни теперь работают по нему. Точка станет зелёной."
+  uk: "ЗБЕРЕГТИ робить її планом компанії: графік і дні тепер працюють за ним. Крапка стане зеленою."
 "This day has no trips yet. Give the company a line first (on the Lines page), then come back.":
   de: "Dieser Tag hat noch keine Fahrten. Geben Sie dem Unternehmen zuerst eine Linie (auf der Seite Linien) und kommen Sie dann zurück."
   fr: "Ce jour n'a encore aucune course. Donnez d'abord une ligne à l'entreprise (page Lignes), puis revenez."
@@ -1336,13 +1336,13 @@ _version: 2
   pl: "Zablokowany autobus lub służba zostaje bez zmian: OPTYMALIZUJ i inne twoje zmiany ich nie ruszają."
   ru: "Заблокированный автобус или смена не меняются: ОПТИМИЗИРОВАТЬ и другие ваши правки их не трогают."
   uk: "Заблокований автобус чи зміна не змінюються: ОПТИМІЗУВАТИ та інші ваші правки їх не чіпають."
-"Your changes before SAVE (orange dot). The game keeps running the saved planning (green dot) until you save.":
-  de: "Ihre Änderungen vor dem SPEICHERN (oranger Punkt). Das Spiel fährt weiter die gespeicherte Planung (grüner Punkt), bis Sie speichern."
-  fr: "Vos modifications avant ENREGISTRER (point orange). Le jeu continue d'appliquer la planification enregistrée (point vert) tant que vous n'enregistrez pas."
-  nl: "Je wijzigingen vóór OPSLAAN (oranje stip). Het spel blijft de opgeslagen planning rijden (groene stip) tot je opslaat."
-  pl: "Twoje zmiany przed ZAPISZ (pomarańczowa kropka). Gra dalej działa według zapisanego planu (zielona kropka), dopóki nie zapiszesz."
-  ru: "Ваши изменения до СОХРАНИТЬ (оранжевая точка). Игра работает по сохранённому плану (зелёная точка), пока вы не сохраните."
-  uk: "Ваші зміни до ЗБЕРЕГТИ (помаранчева крапка). Гра працює за збереженим планом (зелена крапка), доки ви не збережете."
+"Your changes before SAVE (orange dot). The roster keeps running the saved planning (green dot) until you save.":
+  de: "Ihre Änderungen vor dem SPEICHERN (oranger Punkt). Der Dienstplan läuft weiter nach der gespeicherten Planung (grüner Punkt), bis Sie speichern."
+  fr: "Vos modifications avant ENREGISTRER (point orange). Le roulement continue d'appliquer la planification enregistrée (point vert) tant que vous n'enregistrez pas."
+  nl: "Je wijzigingen vóór OPSLAAN (oranje stip). Het rooster blijft de opgeslagen planning volgen (groene stip) tot je opslaat."
+  pl: "Twoje zmiany przed ZAPISZ (pomarańczowa kropka). Grafik dalej działa według zapisanego planu (zielona kropka), dopóki nie zapiszesz."
+  ru: "Ваши изменения до СОХРАНИТЬ (оранжевая точка). График работает по сохранённому плану (зелёная точка), пока вы не сохраните."
+  uk: "Ваші зміни до ЗБЕРЕГТИ (помаранчева крапка). Графік працює за збереженим планом (зелена крапка), доки ви не збережете."
 "Peak vehicle requirement: the most buses out at the same time. That is how many buses the day needs.":
   de: "Spitzenbedarf an Fahrzeugen: die meisten Busse, die gleichzeitig unterwegs sind. So viele Busse braucht der Tag."
   fr: "Besoin en véhicules à la pointe : le plus grand nombre de bus en ligne en même temps. C'est le nombre de bus dont la journée a besoin."

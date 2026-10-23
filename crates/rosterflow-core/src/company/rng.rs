@@ -1,6 +1,6 @@
 //! A predictable chance: the same company on the same day draws the same numbers, also after
-//! a restart (Omsi-Hub's `reeks`: a market that changed every time the page was opened would
-//! be shopped until it offered the best bus). SplitMix64, seeded from a hash of words.
+//! a restart (a draw that changed every time the page was opened could be repeated until it
+//! gave the result one wanted). SplitMix64, seeded from a hash of words.
 
 #[derive(Clone, Debug)]
 pub struct Rng(u64);

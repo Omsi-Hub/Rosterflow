@@ -1,10 +1,9 @@
-//! A day's rows copied to other days by themselves (testers, Beta 56: "a copy button to copy it
-//! to another day. that may work better"): RosterFlow's selection bar's "Copy to…" - the buses'
-//! blocks or the drivers' duties ticked - matched to the other day's trips as SAVE › Apply to
-//! matches them (`matching`), the rest of that day's plan left as it is. Only the trips that
-//! match go along; the rows' others are listed, and so are those a vehicle or a duty locked
-//! there holds - unless that is the row itself, copied there before (with its lock): a second
-//! copy goes over the first.
+//! A day's rows copied to other days by themselves: RosterFlow's selection bar's "Copy to…" - the
+//! buses' blocks or the drivers' duties ticked - matched to the other day's trips as SAVE › Apply
+//! to matches them (`matching`), the rest of that day's plan left as it is. Only the trips that
+//! match go along; the rows' others are listed, and so are those a vehicle or a duty locked there
+//! holds - unless that is the row itself, copied there before (with its lock): a second copy goes
+//! over the first.
 //!
 //! A bus's block takes its matched trips off the buses that run them there, under its own name
 //! (a bus of that name there is named anew), with its lock and its links. A duty becomes a duty

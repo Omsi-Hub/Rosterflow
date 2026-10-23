@@ -1,13 +1,11 @@
-// RosterFlow's Roster tab (`crates/omsi-launcher-ui/src/company/planning/rf_roster.rs`): the
-// planning's weekly roster drawn as the rest of RosterFlow is. Under the title bar the next seven
-// days as RosterFlow's tabs, each with whether it is covered; the toolbar with what the roster
-// repeats and the tools (repeat, clear the day, fill the roster); then the day's tours as
-// RosterFlow's Gantt on a canvas - its axis and hour bands, its rows with the ID column (the tour,
-// its bus) - grouped by line under a heading that folds the line away and opens its timetable. A
-// tour's duties lie on the hours in the colour of who drives them; what is open reads as
-// RosterFlow's issues. Beside the chart the day, a duty or a tour, with the drivers and buses to
-// give by tapping or dragging; on the company's day "Drive this duty" opens the company's duty
-// launcher with exactly that duty. The roster's rules are the Rust side's (`rf_roster*`).
+// RosterFlow's Roster tab: the planning's weekly roster drawn as the rest of RosterFlow is. Under
+// the title bar the next seven days as RosterFlow's tabs, each with whether it is covered; the
+// toolbar with what the roster repeats and the tools (repeat, clear the day, fill the roster); then
+// the day's tours as RosterFlow's Gantt on a canvas - its axis and hour bands, its rows with the ID
+// column (the tour, its bus) - grouped by line under a heading that folds the line away and opens
+// its timetable. A tour's duties lie on the hours in the colour of who drives them; what is open
+// reads as RosterFlow's issues. Beside the chart the day, a duty or a tour, with the drivers and
+// buses to give by tapping or dragging. The roster's rules are the Rust side's (`rf_roster*`).
 
 import { html, useEffect, useRef, useState } from '../../vendor/preact-htm.js';
 import { S } from '../store.js';
@@ -38,7 +36,7 @@ const rsSet = (patch) => setPart('roster', patch);
 const inside = (r, m) => m && m.x >= r.x && m.x < r.x + r.w && m.y >= r.y && m.y < r.y + r.h;
 // (the same part of the chart, pressed and let go: by what it is, not by its object - the chart
 // is drawn anew while the mouse moves and the press takes the chip up, and a click on a chip or
-// its cross was lost so: testers found taking a driver off "a lot harder now")
+// its cross was lost so, and taking a driver off got harder)
 const sameHit = (a, b) => !!a && !!b && a.kind === b.kind && a.ti === b.ti && a.duty === b.duty && a.line === b.line && a.all === b.all;
 
 /** The pitch of a tour's row: the room shared by `rows`, between the least and the most. */
@@ -94,9 +92,9 @@ export function rosterEscape() {
 }
 
 // --- taking off -------------------------------------------------------------------------------------
-// (testers: "an easier way to deallocate a driver or a bus" - the rules are the core's
-// `unassign`: the day's choice taken back, the central's cover given up, else out of the roster;
-// what has begun, was driven or runs in the game stays and says why)
+// (an easy way to deallocate a driver or a bus - the rules are the core's `unassign`: the day's
+// choice taken back, the central's cover given up, else out of the roster; what has begun, was
+// driven or is running now stays and says why)
 
 /** Undo (`back`) or redo the Roster tab's last change (the title bar's arrows, Ctrl+Z, Ctrl+Y). */
 export function rosterUndo(back) {
@@ -836,7 +834,7 @@ const TimetableButton = ({ line }) => html`<button type="button" class="rr-tt" t
  * says, from the Rust side). */
 const OffButton = ({ label, go }) => html`<${RfButton} label=${label} raw data="rf-roster-off-side" title="Take it off (Delete)" style="width:100%;height:32px;margin:4px 0;box-shadow:inset 0 0 0 1.5px var(--rf-err)" onClick=${go} />`;
 
-/** The swatches the Rust side names (the player's, the agency's). */
+/** The swatches the Rust side names (the agency's grey; a driver's own colour is given as it is). */
 const SWATCH = { accent: 'var(--rf-accent)', grey: 'var(--rf-grey)' };
 
 /** A duty chosen (`rf_roster::duty_panel`): its times, who drives it and why, who else could; on

@@ -468,7 +468,7 @@ fn the_draft_is_the_studios_until_it_is_saved_or_discarded() {
     st::move_trip(&mut v, w, &tours, block(&tours, "2").0, 7, Target::New).unwrap();
     keep_draft(&mut c, &v);
     assert!(has_draft(&c));
-    // the game still runs the saved day: two buses; the studio shows three
+    // the day still runs what is saved: two buses; the studio shows three
     assert_eq!(day(&c, &l).len(), 2);
     assert_eq!(day(&view(&c), &l).len(), 3);
     // undo to a state, then discard
@@ -584,8 +584,8 @@ fn a_lessons_snapshot_puts_the_draft_the_saved_planning_and_the_colours_back() {
 
 #[test]
 fn a_duty_shows_its_breaks_and_driving_periods_as_the_rules_count_them() {
-    // (testers: "when you define for it to show you periods between a break it does not tell
-    // me"; "if over a figure eg 15 mins then it shows something as a break")
+    // (the driving periods between breaks are shown; a gap over a set figure, say 15 minutes,
+    // shows as a break)
     let c = company();
     let l = line5();
     let b = board(&c, std::slice::from_ref(&l), &c.date.clone());
@@ -679,8 +679,7 @@ fn the_meal_break_comes_before_the_duty_has_worked_its_time() {
 
 #[test]
 fn a_rule_changed_changes_the_issues_at_once() {
-    // (testers: "When it asks me about amount of time that can be worked before a break etc, its
-    // not actually realising this immediately")
+    // (a change to the time that can be worked before a break counts at once, not later)
     let mut c = company();
     let l = line5();
     let date = c.date.clone();

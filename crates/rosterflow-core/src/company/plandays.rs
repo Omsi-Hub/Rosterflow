@@ -1,7 +1,6 @@
-//! Which plan each day of the company runs, and a plan copied to the other days it works with
-//! (testers, 2026-10-14: "once you have got a duty and vehicle plan perfect, to be able to copy
-//! it to the days it works with - if you copy it to a day it does not work well with then it
-//! will only copy the parts that match"; Trello #100).
+//! Which plan each day of the company runs, and a plan copied to the other days it works with:
+//! a duty and vehicle plan made once is copied to the days it fits, and to a day it fits less
+//! well only as far as its parts match.
 //!
 //! RosterFlow keeps its blocks and duties a weekday at a time (`studio::LineLayout::weekday`,
 //! `JoinedDuty::weekday`, the sheet's `weekday`s): Monday's plan runs every Monday. That number
@@ -21,8 +20,8 @@
 //!
 //! The copied day follows its source (`Follow`): changed afterwards it is an override, with
 //! "Reset to pattern" (`recopy`); its source changed since, it is UNSYNCED and a Refresh copies
-//! it again. A copy is the day's own plan like one made by hand, so the game and the day's
-//! close run it. (The roster - which bus and driver - stays a weekday's: `plan::RosterTour`.)
+//! it again. A copy is the day's own plan like one made by hand, so the day's roster and its
+//! records run it. (The roster - which bus and driver - stays a weekday's: `plan::RosterTour`.)
 //!
 //! A plan copied to a day of another timetable finds little to match there: Saturday and Sunday
 //! run a timetable of their own. The Timeplan's "Copy to…" (`timetable`) copies the timetable

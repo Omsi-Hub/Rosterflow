@@ -1,7 +1,6 @@
 //! Optimise on a line whose bus does not stand at one stop between two trips, Optimise saying
-//! when it finds nothing better, keeping to the duty types (testers, 2026-10-15: "optimise
-//! feature do not work in rosterflow"); and the least length of a duty ("the shortest a duty can
-//! be").
+//! when it finds nothing better, keeping to the duty types; and the least length of a duty (the
+//! shortest a duty can be).
 
 use super::super::{found, Founding};
 use super::*;
@@ -42,7 +41,7 @@ fn tour(no: &str, trips: Vec<TripInfo>) -> TourInfo {
     TourInfo { number: no.into(), ai_group: String::new(), first: 0.0, last: 0.0, days: "daily".into(), runs: true, next_run: None, trips }
 }
 
-/// Line 5 from A to B only (Luc's line 880 runs one way): a trip of 20 minutes every half hour
+/// Line 5 from A to B only (a line that runs one way): a trip of 20 minutes every half hour
 /// from 06:00 to 17:30, the bus running back to A empty - it never stands where it goes on from.
 fn one_way() -> LineInfo {
     line(vec![tour("1", (0..24).map(|k| tt(&format!("5 1-{k}"), "A", "B", 360 + k * 30, 380 + k * 30)).collect())])

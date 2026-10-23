@@ -24,7 +24,7 @@ pub struct PlannedTrip {
     #[serde(default)]
     pub empty: bool,
     /// The timetable's tour it comes from (the scheduling studio may run it in another bus's
-    /// block, `studio`; the game still knows it by this tour). Empty for a depot run the
+    /// block, `studio`; the day's plan still knows it by this tour). Empty for a depot run the
     /// company adds itself.
     #[serde(default)]
     pub origin: String,
@@ -119,7 +119,7 @@ pub struct TourOfDay {
     /// on the planning to be planned, but neither run nor penalised (`in_service`).
     #[serde(default)]
     pub unplanned: bool,
-    /// Where the player cut it into duties in the scheduling studio: the trips (indices) a
+    /// Where the planner cut it into duties in the scheduling studio: the trips (indices) a
     /// new duty begins with. None: cut automatically (`split_tour`).
     #[serde(default)]
     pub cuts: Option<Vec<usize>>,
@@ -226,10 +226,9 @@ pub fn line_of_number<'a>(c: &'a Company, number: &str) -> Option<&'a CompanyLin
 
 /// The tours of the company's lines on `date` (`lines` the timetable read for it): those that
 /// run that day, their trips in order of departure, each marked `unplanned` when its line is
-/// not in service as it begins - as the player laid them out in the scheduling studio, where
-/// he did (`studio::arrange`; the easy mode keeps the timetable's). The one source of a day's
-/// tours - the Lines page, the planning, the clock and the day's close all take them from
-/// here.
+/// not in service as it begins - as the planner laid them out in the scheduling studio, where
+/// he did (`studio::arrange`; else the timetable's own). The one source of a day's tours - the
+/// Lines page, the planning, the day's roster and its records all take them from here.
 pub fn tours_of_day(c: &Company, lines: &[LineInfo], date: &str) -> Vec<TourOfDay> {
     tours_of_slot(c, lines, date, super::plandays::slot_of(c, date))
 }
@@ -299,7 +298,7 @@ pub(crate) fn timetable_tours(c: &Company, lines: &[LineInfo]) -> Vec<TourOfDay>
 }
 
 /// The trips of `date` on no bus (RosterFlow's stack, `rosterflow::stack`): their line and the
-/// trip. The easy mode keeps the timetable's tours, every trip on a bus.
+/// trip. The timetable's own tours have every trip on a bus.
 pub fn off_every_bus(c: &Company, lines: &[LineInfo], date: &str) -> Vec<(String, PlannedTrip)> {
     super::rosterflow::stack(c, lines, super::plan::weekday_of(date))
 }
@@ -440,7 +439,7 @@ pub fn split_tour(trips: &[PlannedTrip], max: i32) -> Vec<std::ops::Range<usize>
     out
 }
 
-/// The duties of a tour: where the player cut it in the scheduling studio, else cut
+/// The duties of a tour: where the planner cut it in the scheduling studio, else cut
 /// automatically (`DUTY_MAX`).
 pub fn duties_of(t: &TourOfDay) -> Vec<std::ops::Range<usize>> {
     match &t.cuts {

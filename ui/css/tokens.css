@@ -1,6 +1,5 @@
-/* Omsi-Hub's theme tokens (`--hub-*`) and its font, Hanken Grotesk (SIL OFL 1.1,
-   fonts/HankenGrotesk-OFL.txt). Taken from the old launcher's omsihub.css, Omsi-Hub's own.
-   The dark look is the default; `<html data-theme="light">` switches to the light one. */
+/* The theme tokens (`--hub-*`) and the font, Hanken Grotesk (SIL OFL 1.1,
+   fonts/HankenGrotesk-OFL.txt). The dark look is the default; `<html data-theme="light">` switches to the light one. */
 
 @font-face { font-family: "Hanken Grotesk"; font-style: normal; font-weight: 400; font-display: block; src: url("../fonts/HankenGrotesk-latin-400.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "Hanken Grotesk"; font-style: normal; font-weight: 500; font-display: block; src: url("../fonts/HankenGrotesk-latin-500.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -30,9 +29,9 @@
   --hub-text-soft: #c4cad6;
   --hub-text-dim: #959db0;
   --hub-text-faint: #60687a;
-  /* (theme.rs's see-through whites - an edge .08, a hairline .09, a switch's track .16, a
-     slider's rail .12 - as it blends them, in linear light: over the panel about as strong as
-     these blended plainly, `--aw-*` of omsihub/company.css) */
+  /* (the theme's see-through whites - an edge .08, a hairline .09, a switch's track .16, a
+     slider's rail .12 - blended in linear light: over the panel about as strong as these
+     blended plainly, `--aw-*` of company.css) */
   --hub-edge: rgba(255, 255, 255, 0.268);
   --hub-hairline: rgba(255, 255, 255, 0.287);
   --hub-lift: rgba(255, 255, 255, 0.06);
@@ -86,8 +85,8 @@
   --hub-text-soft: #464248;
   --hub-text-dim: #645f62;
   --hub-text-faint: #86807e;
-  /* (the dark look's see-through whites as see-through ink, `theme.rs`'s `overlay_alpha`, in
-     linear light as the bus company's are, omsihub/company.css) */
+  /* (the dark look's see-through whites as see-through ink, in linear light as the bus
+     company's are, company.css) */
   --hub-edge: rgba(22, 20, 26, 0.126);
   --hub-hairline: rgba(22, 20, 26, 0.134);
   --hub-lift: rgba(22, 20, 26, 0.05);

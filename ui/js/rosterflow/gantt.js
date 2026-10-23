@@ -1,14 +1,13 @@
-// RosterFlow's Gantt on a canvas (`crates/omsi-launcher-ui/src/company/planning/rf_gantt.rs`):
-// the day as Optibus's scheduling module draws it. A row per bus's block (Vehicles) or per
-// driver's duty (Drivers): a checkbox, a red "!" when the row breaks a rule, its ID; then on the
-// hour axis its trips as saturated chips in the line's colour, pointed the way they run (right
-// outbound, left inbound), and every event in Optibus's symbols - deadheads as small dark boxes
-// (an orange dot where the time is estimated), pull-outs and pull-ins as grey-blue boxes, the
-// pre- and post-trip checks and the sign-on and sign-off as T-bars, the reliefs as arrows, splits
-// as a line with "Split", travel as an amber box with W, P or R, custom work as a white box,
-// linked trips striped, a trip moved off its timetable tour with a dot. In Drivers every break
-// of a duty is labelled in its gap with its kind and length, and its driving periods between
-// the breaks that end one lie in a band under its row (`dutyRest`).
+// RosterFlow's Gantt on a canvas: the day as Optibus's scheduling module draws it. A row per bus's
+// block (Vehicles) or per driver's duty (Drivers): a checkbox, a red "!" when the row breaks a
+// rule, its ID; then on the hour axis its trips as saturated chips in the line's colour, pointed
+// the way they run (right outbound, left inbound), and every event in Optibus's symbols - deadheads
+// as small dark boxes (an orange dot where the time is estimated), pull-outs and pull-ins as
+// grey-blue boxes, the pre- and post-trip checks and the sign-on and sign-off as T-bars, the
+// reliefs as arrows, splits as a line with "Split", travel as an amber box with W, P or R, custom
+// work as a white box, linked trips striped, a trip moved off its timetable tour with a dot. In
+// Drivers every break of a duty is labelled in its gap with its kind and length, and its driving
+// periods between the breaks that end one lie in a band under its row (`dutyRest`).
 //
 // A click on a chip chooses it and opens its card; Shift and a click widen the choice along the
 // row (in Drivers Ctrl or Shift and a click on another duty add its trips, and a chip of a duty
@@ -17,8 +16,7 @@
 // show drop zones rated with stars, blue where nothing breaks, red where a rule does, with the
 // cost they make. A right click opens the menu. A gap between two trips at a terminus or the
 // depot is clicked to cut a duty there; the relief arrows are clicked to join it again. The
-// canvas draws what it is told and keeps where each part lies (`hits`), as the game-drawn
-// launcher's frame does.
+// canvas draws what it is told and keeps where each part lies (`hits`).
 
 import { html, useEffect, useRef } from '../../vendor/preact-htm.js';
 import { S } from '../store.js';
@@ -181,7 +179,7 @@ function makeRows(data, drivers) {
     });
     const at = b.blocks.map((t) => lineIdx.get(String(t.line).trim().toLowerCase()) ?? 1e9);
     // (by line, then by the bus's number: a bus split off or added has the next number, so it is a
-    // new row at the bottom of its line and every other row stays where it was - Luc, Beta 65)
+    // new row at the bottom of its line and every other row stays where it was)
     const idx = b.blocks.map((_, i) => i).sort((a, c) => at[a] - at[c] || BUS_ORDER.compare(b.blocks[a].tour, b.blocks[c].tour) || b.blocks[a].from - b.blocks[c].from || a - c);
     for (const i of idx) {
       const t = b.blocks[i];
@@ -253,8 +251,8 @@ export function pieceTrips(b, tour, duty) {
 export const pieceOf = (b, tour, trip) => Math.max(0, (b.blocks[tour]?.pieces || []).findIndex(([a, z]) => trip >= a && trip < z));
 
 /** What a chip pressed takes up: trips of a bus in Vehicles; in Drivers its piece of work - or,
- * once the core moves single trips between duties (`studio::plan_move_to_duty`, Luc's driver
- * drag on `rf-driver-drag`: `rf_on`'s `trips_to_duties`), the trips chosen of duty `duty` as
+ * once the core moves single trips between duties (`studio::plan_move_to_duty`, the driver
+ * drag: `rf_on`'s `trips_to_duties`), the trips chosen of duty `duty` as
  * (bus, trip) pairs, to drop on another duty or "New duty"; `piece` (Alt and a drag, the menu's
  * Move piece) the whole piece still. */
 export function tripHand(b, drivers, tour, trips, trip, duty = null, pairs = null, piece = false) {
@@ -834,9 +832,8 @@ function dutyRow(ctx, g, row, cy, xOf, hit, an) {
   return lit;
 }
 
-/** A duty's breaks and driving periods (testers: "when you define for it to show you periods
- * between a break it does not tell me so its a bit of guesswork"), as the core counts them for
- * the issues (`rosterflow::break_plan`): each break labelled in its gap with its kind and length
+/** A duty's breaks and driving periods, shown so the planner need not guess, as the core
+ * counts them for the issues (`rosterflow::break_plan`): each break labelled in its gap with its kind and length
  * ("Break 0:35", "Meal 0:45", "Split 3:10"; only its length where the gap is narrow, a tick where
  * narrower still), green where it counts for the meal or continuous rule, grey where it is too
  * short to; under the row the driving periods between the breaks that end one, each with its
@@ -1184,7 +1181,7 @@ export function Gantt({ data, drivers, readOnly, p, onTip, page }) {
         // (Ctrl and a click - Cmd on a Mac, whose Ctrl and a click is a right click: one trip
         // added to the choice or taken out of it)
         sel = inSel ? r.sel.filter(([s0, s1]) => !(s0 === hit.tour && s1 === hit.trip)) : [...r.sel, [hit.tour, hit.trip]];
-        // (taken out: nothing taken up, as the game-drawn launcher does)
+        // (taken out: nothing taken up)
         if (inSel) {
           setRf({ ...patch, sel, selRow: sel.length ? r.selRow : null, card: sel.length > 1 ? { kind: 'selection', at: at(m) } : null });
           return;
@@ -1338,8 +1335,7 @@ export function Gantt({ data, drivers, readOnly, p, onTip, page }) {
       return;
     }
     const notch = Math.max(-3, Math.min(3, -e.deltaY / 100)) || (e.deltaY < 0 ? 1 : -1);
-    // (Ctrl and the wheel are RosterFlow's own here, never the launcher's size: `zoom.js`;
-    // Cmd on a Mac)
+    // (Ctrl and the wheel are RosterFlow's own here, never the window's zoom; Cmd on a Mac)
     if ((e.ctrlKey || e.metaKey) && e.deltaY) {
       // zoomed about the minute under the mouse
       const atMin = L.t0 + L.pan + (m.x - L.gx) / L.ppm;

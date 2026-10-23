@@ -18,19 +18,19 @@
 //!
 //! Every text comes translated (`company::words`), every amount in the company's currency.
 
-/// The plan copied to the other days it works with (Trello #100).
+/// The plan copied to the other days it works with.
 mod days;
 mod print;
 mod roster;
-// (its Own, load_own and commit save the planning's sheet of a line too: Omsi-Hub 6/6)
+// (its Own, load_own and commit save the planning's sheet of a line too)
 pub(crate) mod timeplan;
 mod tutorial;
 
-/// Luc's driver drag (`rf-driver-drag`): single trips of a duty to another duty or a new one.
+/// The driver drag: single trips of a duty to another duty or a new one.
 mod driver_drag;
 
 /// A duty's breaks and driving periods as the page shows them, and the rules as the Preferences
-/// change them (testers, 2026-10-14).
+/// change them.
 mod breaks;
 /// The relief points (Preferences) and the reliefs on the way (the board).
 mod relief;
@@ -64,7 +64,7 @@ pub(crate) struct Cached {
 
 /// Optimise's proposal for a date and generation: the board and what to keep. `base` is the
 /// revision of the day it was made from: a change of the company that leaves the day as it was
-/// (the week's timetables read, the clock's minutes) keeps it, as the game-drawn launcher keeps it.
+/// (the week's timetables read, the clock's minutes) keeps it.
 /// `better`: it weighs less than the day as it is (else it is the day as it is, nothing to
 /// accept); `note` what Optimise did in words, or why it could not.
 #[derive(Clone)]
@@ -640,7 +640,7 @@ fn board_answer(s: &mut Session, r: &mut Rf, args: &Value) -> Answer {
     let prefs = &c.planning.flow.prefs;
     let proposal = r.proposal.clone();
     // (and the preferences, which the board does not show all of: Optimise's switches set off came
-    // back on, the page keeping the answer it had - Luc, Beta 65)
+    // back on, the page keeping the answer it had)
     let rev = format!("{}|{}|{}|{}|{}|{:x}", k.rev, proposal.is_some(), r.undo.len(), r.redo.len(), rf::has_draft(&c), hash_of(&serde_json::to_string(prefs).unwrap_or_default()));
     if args.get("have").and_then(Value::as_str) == Some(rev.as_str()) {
         return Ok(json!({ "same": true, "head": head }));
@@ -679,7 +679,7 @@ pub(crate) const DAY_NAMES: [&str; 7] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat
 const COLOUR_BY: [&str; 3] = ["trip", "block", "duty"];
 
 /// Whether the Drivers tab takes up single trips to move them to another duty (the core's
-/// `studio::plan_move_to_duty`, Luc's driver drag), the whole piece of work by Alt and a drag
+/// `studio::plan_move_to_duty`, the driver drag), the whole piece of work by Alt and a drag
 /// or the menu's Move piece (`driver_drag`).
 pub(crate) const TRIPS_TO_DUTIES: bool = true;
 
@@ -716,7 +716,7 @@ fn view(s: &mut Session, r: &mut Rf, args: &Value) -> Answer {
             json!(list)
         }
         "zones" => json!(zones_for(&k, board, &hand_of(args))),
-        // (no zone for a duty's trips: why, said in the corner - Luc's line 880 offered none)
+        // (no zone for a duty's trips: why, said in the corner - a line run one way may offer none)
         "why" => match hand_of(args) {
             Hand::DutyTrips { duty, trips, rows } => {
                 // (and why not to row `to`: a drop there refused)
@@ -752,12 +752,11 @@ enum Hand {
         duty: usize,
     },
     /// Trips of a duty (the Drivers tab's row `duty`, an index into the board's shaped duties)
-    /// taken up one by one, as (block, trip) pairs on one bus or several, to go to another duty
-    /// or a new one (Luc's change on `rf-driver-drag`, the game-drawn launcher's `Hand::Duty`:
-    /// the core's `studio::plan_move_to_duty` checks them and `studio::move_to_duty` makes it;
-    /// until it is here, the Drivers tab takes up whole pieces, `TRIPS_TO_DUTIES`). Trips of
-    /// several duties go together, each duty's as many rows on: `rows` the duties' rows as the
-    /// page shows them (`driver_drag::targets`).
+    /// taken up one by one, as (block, trip) pairs on one bus or several, to go to another duty or
+    /// a new one (the driver drag: the core's `studio::plan_move_to_duty` checks them and
+    /// `studio::move_to_duty` makes it; until it is here, the Drivers tab takes up whole pieces,
+    /// `TRIPS_TO_DUTIES`). Trips of several duties go together, each duty's as many rows on: `rows`
+    /// the duties' rows as the page shows them (`driver_drag::targets`).
     DutyTrips {
         duty: usize,
         trips: Vec<(usize, usize)>,
@@ -842,7 +841,7 @@ fn zones_for(k: &Cached, board: &Board, h: &Hand) -> Vec<Value> {
                 probe_with(json!({ "kind": "new_duty" }), &|p| st::detach(p, wd, tours, (*tour, *duty)));
             }
         }
-        // (Luc's driver drag: `driver_drag`)
+        // (the driver drag: `driver_drag`)
         Hand::DutyTrips { duty, trips, rows } => {
             let again = |v: &Company| co::network::tours_of_day(v, &k.lines, &k.date);
             driver_drag::zones(c, board, *duty, trips, rows, &again, &mut probe_with)
@@ -1120,8 +1119,8 @@ fn rules_applied(s: &mut Session, r: &mut Rf, date: &str, was: &rf::Prefs, befor
 
 /// Optimise the day shown (`k`): its proposal over the Gantt - where nothing better was found the
 /// day as it is, with nothing to accept - and what it did said in words, or why it could not
-/// (testers, 2026-10-15: "optimise feature do not work in rosterflow": a day it found nothing
-/// better for came back unchanged and unsaid, and Accept kept it as it was).
+/// (a day it found nothing better for must not come back unchanged and unsaid, with an Accept
+/// that keeps it as it was).
 fn optimise(r: &mut Rf, k: &Cached) -> Value {
     let p = &k.view.planning.flow.prefs;
     if !p.optimise_vehicles && !p.optimise_duties {
@@ -1504,7 +1503,7 @@ fn act(s: &mut Session, r: &mut Rf, args: &Value) -> Answer {
             edit(s, r, words, |c| st::unassign(c, wd, &tours, tour, &trips))
         }
         "unassign_key" => {
-            // (Delete: the chosen trips, said as the Rust launcher says it)
+            // (Delete: the chosen trips, said in short)
             edit(s, r, tr("Trips unassigned to the stack"), |c| st::unassign(c, wd, &tours, tour, &trips))
         }
         "assign" => {
@@ -1619,7 +1618,7 @@ fn act(s: &mut Session, r: &mut Rf, args: &Value) -> Answer {
         }
         "unassign_duties" => {
             // (the Drivers tab's batch toolbar, "Unassign all trips": every trip of the duties
-            // ticked to the stack, to plan them anew - Luc, Beta 65; asked first on the page)
+            // ticked to the stack, to plan them anew; asked first on the page)
             let ids: Vec<String> = arg::<Vec<String>>(args, "ids").unwrap_or_default();
             let mut want: Vec<st::TripRef> = Vec::new();
             for x in board.shaped.iter().filter(|x| ids.contains(&duty_id(x))) {
@@ -1662,7 +1661,7 @@ fn act(s: &mut Session, r: &mut Rf, args: &Value) -> Answer {
         }
         "spare" => {
             // (a click on the new row: 13:30-21:30; "Add spare line" on a spare line's card: its
-            // times - a day has as many as the player adds)
+            // times - a day has as many as the planner adds)
             let at = |name: &str, or: i32| args.get(name).and_then(Value::as_i64).map_or(or, |m| m as i32);
             let mut cw = rf::Custom { kind: rf::CUSTOM_KINDS[0].into(), ..Default::default() };
             cw.set_times(at("from", 810), at("to", 1290));
@@ -1863,7 +1862,7 @@ fn act(s: &mut Session, r: &mut Rf, args: &Value) -> Answer {
                     let words = trf("Piece of %{v} made a duty of its own", &[("v", &label_of(tour))]);
                     edit_moving(s, r, words, &piece_rest(&tours, tour, duty, 0), |c| st::detach(c, wd, &tours, (tour, duty)))
                 }
-                // (Luc's driver drag: `driver_drag`)
+                // (the driver drag: `driver_drag`)
                 (Hand::DutyTrips { duty, trips, rows }, "duty" | "new_duty") => {
                     let (lines, day) = (k.lines.clone(), k.date.clone());
                     let again = move |v: &Company| co::network::tours_of_day(v, &lines, &day);
@@ -2000,8 +1999,7 @@ mod tests {
 
     #[test]
     fn a_rule_saved_applies_to_the_day_at_once_and_a_proposal_of_the_old_rules_goes() {
-        // (testers: "When it asks me about amount of time that can be worked before a break etc,
-        // its not actually realising this immediately")
+        // (a change to the time that can be worked before a break counts at once, not later)
         company::words::set_language("en");
         let (c, l) = line5_company();
         let date = c.date.clone();
@@ -2102,7 +2100,7 @@ mod tests {
 
     #[test]
     fn optimise_says_what_it_did_and_a_day_it_cannot_better_has_nothing_to_accept() {
-        // (testers, 2026-10-15: "optimise feature do not work in rosterflow")
+        // (Optimise says what it did, or that it found nothing better)
         company::words::set_language("en");
         let (c, l) = line5_company();
         let date = c.date.clone();

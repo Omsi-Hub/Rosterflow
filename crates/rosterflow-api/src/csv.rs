@@ -50,10 +50,7 @@ pub fn read(text: &str) -> Vec<Vec<String>> {
 pub fn write(rows: &[Vec<String>]) -> String {
     let mut out = String::from("\u{feff}");
     for r in rows {
-        let cells: Vec<String> = r
-            .iter()
-            .map(|c| if c.contains([';', '"', '\n', ',']) { format!("\"{}\"", c.replace('"', "\"\"")) } else { c.clone() })
-            .collect();
+        let cells: Vec<String> = r.iter().map(|c| if c.contains([';', '"', '\n', ',']) { format!("\"{}\"", c.replace('"', "\"\"")) } else { c.clone() }).collect();
         out.push_str(&cells.join(";"));
         out.push_str("\r\n");
     }

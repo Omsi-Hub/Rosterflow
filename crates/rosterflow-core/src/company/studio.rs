@@ -1,24 +1,23 @@
-//! The scheduling studio (the planning, phase 1; Luc: the bus company's planning should look
-//! and work "like Optibus Scheduling"): the day's vehicle blocks - a bus's day, to begin with
-//! a tour of the timetable - and the driver duties cut from them, seen and edited by hand in
-//! the advanced mode.
+//! The scheduling studio (the planning, phase 1; it looks and works like Optibus Scheduling): the
+//! day's vehicle blocks - a bus's day, to begin with a tour of the timetable - and the driver
+//! duties cut from them, seen and edited by hand.
 //!
-//! A block keeps to its line. The player moves a trip with passengers to another bus of the
+//! A block keeps to its line. The planner moves a trip with passengers to another bus of the
 //! line, or to a new one; he cuts a block into duties, only at a relief point that allows it -
-//! where the bus stands at a terminus or the depot, or halfway along a trip at a stop the player
-//! made a relief point (`cut_mid`, Luc 2026-10-14; it was "relief points are ONLY a line's
-//! termini and the depot" before) - and joins them again; and he joins pieces of different blocks into one driver's
+//! where the bus stands at a terminus or the depot, or halfway along a trip at a stop the planner
+//! made a relief point (`cut_mid`; before, relief points were only a line's termini and the
+//! depot) - and joins them again; and he joins pieces of different blocks into one driver's
 //! duty (a split duty, or one that changes buses). The working-time rules (`staff::check`)
 //! refuse what may not be and warn of the rest. In RosterFlow's Drivers view he moves a trip
 //! (or several) of a duty to another duty or to a new one (`plan_move_to_duty`): the bus keeps
 //! the trip, only its driver changes, and the block is cut anew where the driver changes - at a
 //! terminus or the depot again. What he lays out is kept with the company a
 //! weekday at a time, as the weekly roster is (`plan::Planning::layouts`, `joined`), and
-//! `network::tours_of_day` gives every page the day so: the planning, the day's close, and
-//! the game's plan (`plan::live_plan` runs each tour of the timetable with the bus of the
-//! block that holds most of it). An edit the timetable no longer fits is dropped for its line
-//! - the automatic blocks and cuts again - and the inbox says so (`retire_stale`). The easy
-//! mode keeps the timetable's tours: its planning runs by itself.
+//! `network::tours_of_day` gives every page the day so: the planning, the day's roster and
+//! the day's plan (each tour of the timetable runs with the bus of the block that holds most of
+//! it). An edit the timetable no longer fits is dropped for its line - the automatic blocks and
+//! cuts again - and the inbox says so (`retire_stale`). A weekday nothing was laid out for keeps
+//! the timetable's tours: its planning runs by itself.
 
 use super::model::{Cents, Company};
 use super::network::{self, PlannedTrip, TourOfDay};
@@ -100,7 +99,7 @@ impl TripRef {
     }
 }
 
-/// A bus's day as the player laid it out: its trips, and the trips its duties begin with
+/// A bus's day as the planner laid it out: its trips, and the trips its duties begin with
 /// (None: cut automatically).
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct BlockLayout {
@@ -126,7 +125,7 @@ pub struct MidRelief {
     pub name: String,
 }
 
-/// A line's blocks on a weekday as the player laid them out.
+/// A line's blocks on a weekday as the planner laid them out.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct LineLayout {
     /// 0 Monday .. 6 Sunday.
@@ -134,7 +133,7 @@ pub struct LineLayout {
     /// The company line (its timetable name).
     pub line: String,
     pub blocks: Vec<BlockLayout>,
-    /// Trips with passengers the player took off every bus (RosterFlow's stack): they wait
+    /// Trips with passengers the planner took off every bus (RosterFlow's stack): they wait
     /// there to be assigned again, and no bus of the company runs them meanwhile.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub stack: Vec<TripRef>,
@@ -158,7 +157,7 @@ impl PieceRef {
     }
 }
 
-/// Pieces of work the player joined into one driver's duty, on a weekday.
+/// Pieces of work the planner joined into one driver's duty, on a weekday.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct JoinedDuty {
     pub weekday: u8,
@@ -337,7 +336,7 @@ fn set_block_cuts(b: &mut BlockLayout, t: &TourOfDay, at: &[usize]) {
 }
 
 /// The day's tours of the timetable (`network::timetable_tours`, `info` the timetable read) as
-/// the player laid out their lines on `weekday`. Returns the blocks whose duties he cut, with
+/// the planner laid out their lines on `weekday`. Returns the blocks whose duties he cut, with
 /// the trips they begin with (found once the depot runs are in, `resolve_cuts`).
 pub fn arrange(c: &Company, weekday: u8, tours: &mut Vec<TourOfDay>, info: &[LineInfo]) -> Vec<(usize, Vec<TripRef>)> {
     let (laid, _) = fit(c, weekday, tours, info);
@@ -414,7 +413,7 @@ pub fn rename_line(c: &mut Company, old: &str, new: &str) {
     }
 }
 
-/// Whether the player laid out anything of `weekday`.
+/// Whether the planner laid out anything of `weekday`.
 pub fn edited(c: &Company, weekday: u8) -> bool {
     c.planning.layouts.iter().any(|l| l.weekday == weekday) || c.planning.joined.iter().any(|j| j.weekday == weekday)
 }
@@ -428,12 +427,11 @@ pub fn reset_day(c: &mut Company, weekday: u8) -> bool {
     was
 }
 
-// --- the game's side ------------------------------------------------------------------------
+// --- the day plan's side --------------------------------------------------------------------
 
-/// The timetable's tours a block of the day (`t`, one of `all`) runs in the game, each with its
-/// line (another than the block's where the bus interlines): each it holds more trips of than
-/// any other block (the first such on a tie). A block whose trips do not know their tour: its
-/// own.
+/// The timetable's tours a block of the day (`t`, one of `all`) runs in the day's plan, each with
+/// its line (another than the block's where the bus interlines): each it holds more trips of than
+/// any other block (the first such on a tie). A block whose trips do not know their tour: its own.
 pub fn origins(all: &[DayTour], t: &DayTour) -> Vec<(String, String)> {
     let count = |b: &TourOfDay, l: &str, o: &str| b.trips.iter().filter(|x| x.origin.trim() == o && same(b.line_of(x), l)).count();
     let mut mine: Vec<(String, String)> = Vec::new();
@@ -456,7 +454,7 @@ pub fn origins(all: &[DayTour], t: &DayTour) -> Vec<(String, String)> {
         .collect()
 }
 
-/// The driver of another piece of the duty the player joined piece `k` of block `i` into
+/// The driver of another piece of the duty the planner joined piece `k` of block `i` into
 /// (`tours` the day plan's, as far as it is given), if one has a driver of the staff.
 pub fn partner_driver(c: &Company, weekday: u8, tours: &[DayTour], i: usize, k: usize) -> Option<u32> {
     let t = tours.get(i)?;
@@ -565,7 +563,7 @@ pub enum Target {
 
 /// The line's blocks as the day has them now (`tours` as `network::tours_of_day` gives them):
 /// the start of a layout to change. The depot runs the company adds itself are left out
-/// (added again), and so are cuts the player did not make.
+/// (added again), and so are cuts the planner did not make.
 fn layout_now(c: &Company, tours: &[TourOfDay], line: &str, weekday: u8) -> LineLayout {
     let stack = c.planning.layouts.iter().find(|l| l.weekday == weekday && same(&l.line, line)).map(|l| l.stack.clone()).unwrap_or_default();
     let blocks = tours.iter().filter(|t| same(&t.line, line)).map(layout_of_block).collect();
@@ -573,7 +571,7 @@ fn layout_now(c: &Company, tours: &[TourOfDay], line: &str, weekday: u8) -> Line
 }
 
 /// A block of the day as a layout keeps it: its trips (a trip cut on the way once, with its
-/// relief), the cuts the player made.
+/// relief), the cuts the planner made.
 pub fn layout_of_block(t: &TourOfDay) -> BlockLayout {
     // (a trip of another line, where the bus interlines, names its line)
     let mut b = BlockLayout {
@@ -1016,7 +1014,7 @@ pub fn swap(c: &mut Company, weekday: u8, tours: &[TourOfDay], from: usize, pick
 
 // --- trips moved between duties (RosterFlow's Drivers view) ------------------------------------
 //
-// Luc: in Drivers a trip is dragged onto another duty, or onto a new one, as a trip is dragged
+// In Drivers a trip is dragged onto another duty, or onto a new one, as a trip is dragged
 // onto another bus in Vehicles. The bus keeps running its block; only the driver of the trip
 // changes. Its block is cut anew where the driver changes now - only where the bus stands at a
 // terminus or the depot - and joined where one driver now works on (a cut between two pieces of
@@ -1056,12 +1054,12 @@ pub fn duty_of_trip(duties: &[Duty], tours: &[TourOfDay], i: usize, j: usize) ->
 /// after `a`): where the bus stands between them at a terminus or the depot (`NOT_RELIEF` where
 /// it stands elsewhere). Where `b` begins at another place than `a` ends and no run is listed
 /// between two trips with passengers (an own line's way back, a deadhead whose time is
-/// estimated: Luc's line 880 runs one way only), the bus stands where the first one ended
+/// estimated: a line that runs one way only), the bus stands where the first one ended
 /// before it runs empty: the drivers change there, or where the next one begins, at a terminus
-/// or the depot - where neither allows it, it is the relief point that says no (`NOT_RELIEF`:
-/// a tester's line 322 arrives at Brixton Rd and leaves from Stockwell Park Walk, Brixton
-/// unticked, and was told the bus was on the move). Between an empty run and another place it
-/// is on the move (`ON_THE_MOVE`).
+/// or the depot - where neither allows it, it is the relief point that says no (`NOT_RELIEF`,
+/// not that the bus is on the move: a line that arrives at one stop and leaves from another,
+/// relief unticked at both). Between an empty run and another place it is on the move
+/// (`ON_THE_MOVE`).
 fn change_between(c: &Company, tours: &[TourOfDay], line: &str, a: &PlannedTrip, b: &PlannedTrip) -> Result<(), &'static str> {
     if same(a.end(), &b.from) {
         return if is_relief(c, tours, line, a.end()) { Ok(()) } else { Err(NOT_RELIEF) };
@@ -1333,9 +1331,9 @@ pub fn move_to_duty(c: &mut Company, weekday: u8, tours: &[TourOfDay], from: usi
 
 // --- trips of several duties moved at once ------------------------------------------------------
 //
-// Testers: "Multi-selected duties in the driver tab can be selected all together, but not dragged
-// up or down". Trips chosen on several rows of the Drivers tab are dragged together: each duty's
-// trips go to the duty as many rows up or down as the one taken hold of goes.
+// Duties chosen together in the Drivers tab are dragged up or down together too. Trips chosen on
+// several rows of the Drivers tab are dragged together: each duty's trips go to the duty as many
+// rows up or down as the one taken hold of goes.
 
 /// Why trips of several duties are not moved together (English, translated when shown).
 pub const PAST_THE_ROWS: &str = "Not every duty chosen has a duty that many rows up or down.";
@@ -1440,7 +1438,7 @@ pub fn move_to_duties(c: &mut Company, weekday: u8, tours: &[TourOfDay], again: 
 }
 
 /// Whether drivers may change at `place` (of a block of line `_line`): a relief point - a
-/// terminus of the day's lines, the depot or a stop the player added (`rosterflow::uses_at`)
+/// terminus of the day's lines, the depot or a stop the planner added (`rosterflow::uses_at`)
 /// - that allows relief.
 pub fn is_relief(c: &Company, tours: &[TourOfDay], _line: &str, place: &str) -> bool {
     super::rosterflow::uses_at(c, tours, place).is_some_and(|u| u.relief)
@@ -1466,8 +1464,8 @@ fn set_cuts(c: &mut Company, weekday: u8, tours: &[TourOfDay], i: usize, at: &[u
 /// The joined duties of `weekday` after block `i` (`tours` as they were) is cut anew at `at`:
 /// only a piece that is gone (no duty begins with its first trip any more) leaves the duty it
 /// was joined into, and only a duty with a piece of this bus that then breaks a hard rule, or
-/// keeps one piece, is taken apart. Every other duty stays as it is (Luc, Beta 65: "splitting a
-/// duty throws everything off" - every duty with a piece of the bus was taken apart).
+/// keeps one piece, is taken apart. Every other duty stays as it is (a split once took
+/// apart every duty with a piece of the bus).
 fn rejoin_cut(c: &mut Company, weekday: u8, tours: &[TourOfDay], i: usize, at: &[usize]) {
     let mut now = tours.to_vec();
     now[i].cuts = Some(at.to_vec());
@@ -1518,7 +1516,7 @@ pub fn cut(c: &mut Company, weekday: u8, tours: &[TourOfDay], i: usize, at: usiz
 
 // --- reliefs on the way (RosterFlow's mid-trip relief) ------------------------------------------
 //
-// Luc (2026-10-14): drivers may change halfway along a trip too, at a relief point that allows it
+// Drivers may change halfway along a trip too, at a relief point that allows it
 // (`rosterflow::ReliefPoint`). The trip is cut in two at that stop (`BlockLayout::reliefs`,
 // `split_trip`): the bus runs it whole, the first part is the duty before's and the second the
 // next one's, at the minute the timetable has the bus there.
@@ -1752,10 +1750,10 @@ fn guard_block(c: &Company, weekday: u8, tours: &[TourOfDay], i: usize) -> Resul
     Ok(())
 }
 
-/// Piece `k` of block `i` may be cut or joined: the bus is not locked, and the duty the piece is
-/// in is not. A locked duty keeps its own pieces, not the rest of its bus's day (Luc, Beta 65: a
-/// later trip of the bus could not be cut for a relief while a duty with an earlier one was
-/// locked) - the bus's other cuts stay where they are (`cut`, `cut_mid`, `uncut`).
+/// Piece `k` of block `i` may be cut or joined: the bus is not locked, and the duty the piece is in
+/// is not. A locked duty keeps its own pieces, not the rest of its bus's day (a later trip of the
+/// bus may be cut for a relief while a duty with an earlier one is locked) - the bus's other cuts
+/// stay where they are (`cut`, `cut_mid`, `uncut`).
 fn guard_piece(c: &Company, weekday: u8, tours: &[TourOfDay], i: usize, k: usize) -> Result<(), &'static str> {
     let t = tours.get(i).ok_or(NOT_FOUND)?;
     if super::rosterflow::block_locked(c, weekday, &t.line, &t.tour) {
@@ -1914,7 +1912,7 @@ fn span(t: &TourOfDay, r: &Range<usize>) -> (i32, i32) {
     (trips.first().map(|x| x.dep).unwrap_or(0), trips.iter().map(|x| x.arr).max().unwrap_or(0))
 }
 
-/// The day's driver duties: every block's pieces (`network::duties_of`), those the player
+/// The day's driver duties: every block's pieces (`network::duties_of`), those the planner
 /// joined on `weekday` (`joined`) one duty each, in the order they begin.
 pub fn duties(joined: &[JoinedDuty], weekday: u8, tours: &[TourOfDay]) -> Vec<Duty> {
     let mut pieces: Vec<(Piece, PieceRef, bool)> = Vec::new();
@@ -2385,8 +2383,8 @@ mod tests {
 
     #[test]
     fn trips_of_several_duties_move_down_a_row_together() {
-        // (testers: "Multi-selected duties ... can be selected all together, but not dragged up
-        // or down") three buses, a driver each: tour 1 06:00-09:50, 2 12:00-15:50, 3 18:00-21:50
+        // (duties chosen together are dragged up or down together) three buses, a driver each:
+        // tour 1 06:00-09:50, 2 12:00-15:50, 3 18:00-21:50
         let mut c = company();
         let l = line_of(&[("1", 360, 4), ("2", 720, 4), ("3", 1080, 4)]);
         let wd = super::super::plan::weekday_of(&c.date);
@@ -2445,12 +2443,12 @@ mod tests {
         assert_eq!(plan_move_to_duty(&c, wd, &workshop, a, &[(one, 3)], DutyTarget::New), Err(NOT_RELIEF));
         // where the bus runs empty from where a trip ended to another place, without a run
         // listed (a deadhead whose time is estimated), it stood at the terminus first: the
-        // drivers change there (Luc's line 880 runs one way only, all its returns so)
+        // drivers change there (a line that runs one way only has all its returns so)
         let mut moving = tours.clone();
         moving[one].trips[4].from = "C".into();
         assert!(plan_move_to_duty(&c, wd, &moving, a, &[(one, 3)], DutyTarget::New).is_ok());
-        // with relief unticked at both (a tester's 322 at Brixton): the relief point says no,
-        // the bus is not on the move
+        // with relief unticked at both (a line arriving at one stop, leaving from another): the
+        // relief point says no, the bus is not on the move
         let mut unticked = c.clone();
         for stop in ["A", "C"] {
             unticked.planning.flow.prefs.points.push(super::super::rosterflow::ReliefPoint { stop: stop.into(), relief: false, ..Default::default() });
@@ -2606,10 +2604,10 @@ mod tests {
 
     #[test]
     fn a_saved_cut_keeps_the_rosters_drivers_on_their_duties() {
-        // (testers: "it shows loads didn't run, but in the planning it was allocated" - the
-        // roster gives a duty its driver by its index in the bus's day, and a cut made in
-        // RosterFlow moved the afternoon's driver onto the new duty of the morning and left the
-        // afternoon without one: its trips were dropped)
+        // (trips shown as not run that the planning had allocated - the roster gives a duty its
+        // driver by its index in the bus's day, and a cut made in RosterFlow moved the afternoon's
+        // driver onto the new duty of the morning and left the afternoon without one: its trips
+        // were dropped)
         use super::super::rosterflow as rf;
         let (mut c, l) = rostered();
         let date = c.date.clone();
