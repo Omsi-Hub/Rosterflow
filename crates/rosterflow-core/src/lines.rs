@@ -712,6 +712,52 @@ pub fn tour_plan(l: &LineDesign) -> Vec<PlannedTour> {
     out
 }
 
+/// How a line's tours change from `old` to `new` (by their numbers): kept as they were, changed
+/// (other trips or times, or another tour has the number now), new, and gone - and the tours that
+/// are the same but numbered otherwise now (`moved`: its old number and its new one).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct TourDiff {
+    pub kept: Vec<String>,
+    pub changed: Vec<String>,
+    pub added: Vec<String>,
+    pub gone: Vec<String>,
+    pub moved: Vec<(String, String)>,
+}
+
+impl TourDiff {
+    /// The tours whose buses and drivers are given anew: the changed and the gone.
+    pub fn replan(&self) -> Vec<String> {
+        self.changed.iter().chain(self.gone.iter()).cloned().collect()
+    }
+}
+
+pub fn tour_diff(old: &LineDesign, new: &LineDesign) -> TourDiff {
+    let (a, b) = (tour_plan(old), tour_plan(new));
+    let (ra, rb) = (run_minutes(old), run_minutes(new));
+    let same = |x: &PlannedTour, y: &PlannedTour| {
+        x.day == y.day
+            && x.trips.len() == y.trips.len()
+            && x.trips.iter().zip(&y.trips).all(|(p, q)| p.dir == q.dir && (p.departure - q.departure).abs() < 0.5 && (p.minutes(&ra) - q.minutes(&rb)).abs() < 0.5)
+    };
+    let mut d = TourDiff::default();
+    for t in &b {
+        match a.iter().find(|x| x.number == t.number) {
+            Some(x) if same(x, t) => d.kept.push(t.number.clone()),
+            Some(_) => d.changed.push(t.number.clone()),
+            None => d.added.push(t.number.clone()),
+        }
+    }
+    d.gone = a.iter().filter(|x| !b.iter().any(|t| t.number == x.number)).map(|x| x.number.clone()).collect();
+    let mut used: std::collections::HashSet<usize> = std::collections::HashSet::new();
+    for t in b.iter().filter(|t| !d.kept.contains(&t.number)) {
+        if let Some((i, x)) = a.iter().enumerate().find(|(i, x)| !used.contains(i) && x.number != t.number && !d.kept.contains(&x.number) && same(x, t)) {
+            used.insert(i);
+            d.moved.push((x.number.clone(), t.number.clone()));
+        }
+    }
+    d
+}
+
 // --- the timetable as a table -------------------------------------------------------------------
 
 /// A trip of a line's timetable table: its direction, its group of days (an index into

@@ -192,6 +192,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "rosterflow-api"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "rosterflow-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "rosterflow-core"
 version = "1.0.0"
 dependencies = [

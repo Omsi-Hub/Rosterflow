@@ -1,0 +1,14 @@
+[package]
+name = "rosterflow-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "RosterFlow's commands: the page's `call(cmd, args)` - the company's files, its master data, the planning (Timeplan, Vehicles, Drivers, Roster) - as JSON"
+
+[dependencies]
+rosterflow-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+chrono.workspace = true

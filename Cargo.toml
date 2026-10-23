@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["crates/rosterflow-core"]
+members = ["crates/rosterflow-core", "crates/rosterflow-api"]
 # (`cargo build` without -p builds the libraries; the desktop app is `cargo build -p rosterflow`)
-default-members = ["crates/rosterflow-core"]
+default-members = ["crates/rosterflow-core", "crates/rosterflow-api"]
 
 [workspace.package]
 version = "1.0.0"

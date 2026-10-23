@@ -64,6 +64,18 @@ pub fn agency_room(_c: &Company, _dp: &DayPlan, _ti: usize, _k: usize) -> bool {
     true
 }
 
+/// What an agency driver costs for duty `k` of tour `ti`: its hours and those of the pieces joined
+/// with it, at the company's agency rate (`agency::rate`).
+pub fn agency_cost(c: &Company, dp: &DayPlan, ti: usize, k: usize) -> Cents {
+    let slot = super::plandays::slot_of(c, &dp.date);
+    let hour = super::agency::rate(c) as f64;
+    std::iter::once((ti, k))
+        .chain(joined_pieces(c, slot, &dp.tours, ti, k))
+        .filter_map(|(i, m)| dp.tours.get(i).and_then(|t| t.duties.get(m)))
+        .map(|d| ((d.to - d.from).max(0) as f64 / 60.0 * hour).round() as Cents)
+        .sum()
+}
+
 /// The pieces joined with duty `k` of tour `i` into one driver's duty in the studio, on the
 /// plan of `slot` (`plandays::slot_of`): (tour, duty) in `tours`, the day plan's.
 pub fn joined_pieces(c: &Company, slot: u8, tours: &[DayTour], i: usize, k: usize) -> Vec<(usize, usize)> {
