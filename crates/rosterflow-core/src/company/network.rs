@@ -1,0 +1,517 @@
+//! The company's lines on a day: the tours of their timetable (`tours_of_day`) - each a bus
+//! from its first trip to its last, as the Vehicles tab laid it out where it did - cut into
+//! duties for the drivers where it stands long enough (`duties_of`).
+
+use super::model::{BusSize, Company, CompanyLine};
+use super::staff::{DUTY_MAX, SPLIT_PAUSE};
+use crate::LineInfo;
+use serde::{Deserialize, Serialize};
+
+/// A trip as the day plans it: minutes of the day.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+pub struct PlannedTrip {
+    pub name: String,
+    /// The number its displays show.
+    pub line: String,
+    pub from: String,
+    pub to: String,
+    pub dep: i32,
+    pub arr: i32,
+    pub km: f64,
+    pub stops: u32,
+    /// A depot run, an empty run or another trip without passengers (`specials::Kind::empty`):
+    /// run with its tour, booked as empty kilometres.
+    #[serde(default)]
+    pub empty: bool,
+    /// The timetable's tour it comes from (the scheduling studio may run it in another bus's
+    /// block, `studio`; the game still knows it by this tour). Empty for a depot run the
+    /// company adds itself.
+    #[serde(default)]
+    pub origin: String,
+    /// The last stop it reaches, where the bus stands after it (`to` is what its displays
+    /// show, often another name). Empty: `to`.
+    #[serde(default)]
+    pub last: String,
+    /// A part of a trip two drivers share, cut at a relief point on the way (`studio`'s
+    /// mid-trip relief). None: the whole trip.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub part: Option<Part>,
+    /// The company line it is a trip of (its timetable name): a bus of another line may run it,
+    /// where the lines interline (RosterFlow, `rosterflow::interlines`). Empty (a depot run the
+    /// company adds, an old save): its block's line (`TourOfDay::line_of`).
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub of_line: String,
+}
+
+/// What a part of a trip cut at a relief point on the way knows of the whole trip.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+pub struct Part {
+    /// The second part (from the relief point on); else the first (up to it).
+    pub second: bool,
+    /// The stop it is cut at: its place in the trip's stops (0 the first) and its name.
+    pub stop: usize,
+    pub at: String,
+    /// The whole trip: when it leaves and arrives, its kilometres and its stops.
+    pub dep: i32,
+    pub arr: i32,
+    pub km: f64,
+    pub stops: u32,
+}
+
+impl PlannedTrip {
+    /// A trip with passengers (a depot run or a short positioning trip carries none: a duty is
+    /// not cut before one). A part of a trip counts as the whole does.
+    pub fn counts(&self) -> bool {
+        !self.empty && self.part.as_ref().map_or(self.stops, |p| p.stops) >= 3
+    }
+
+    /// The second part of a trip cut at a relief point on the way.
+    pub fn is_second(&self) -> bool {
+        self.part.as_ref().is_some_and(|p| p.second)
+    }
+
+    /// When the whole trip leaves (the timetable's minute, a part's too).
+    pub fn whole_dep(&self) -> i32 {
+        self.part.as_ref().map_or(self.dep, |p| p.dep)
+    }
+
+    /// The trip cut at its stop `stop` (named `at`, reached at minute `when`, `share` of the way
+    /// there): its two parts, or None where the stop is not on the way between its ends.
+    pub fn split_at(&self, stop: usize, at: &str, when: i32, share: f64) -> Option<(PlannedTrip, PlannedTrip)> {
+        if self.part.is_some() || stop == 0 || stop + 1 >= self.stops as usize || when <= self.dep || when >= self.arr {
+            return None;
+        }
+        let share = share.clamp(0.0, 1.0);
+        let whole = |second: bool| Some(Part { second, stop, at: at.trim().to_string(), dep: self.dep, arr: self.arr, km: self.km, stops: self.stops });
+        let first = PlannedTrip { arr: when, km: self.km * share, stops: stop as u32 + 1, last: at.trim().to_string(), part: whole(false), ..self.clone() };
+        let second = PlannedTrip { from: at.trim().to_string(), dep: when, km: self.km * (1.0 - share), stops: self.stops - stop as u32, part: whole(true), ..self.clone() };
+        Some((first, second))
+    }
+
+    /// The whole trip again of its first part (`self`) and its second (`rest`).
+    pub fn joined(&self, rest: &PlannedTrip) -> PlannedTrip {
+        match &self.part {
+            Some(p) => PlannedTrip { arr: p.arr, km: p.km, stops: p.stops, last: rest.last.clone(), part: None, ..self.clone() },
+            None => self.clone(),
+        }
+    }
+
+    /// Where the bus stands once it has run it: its last stop.
+    pub fn end(&self) -> &str {
+        if self.last.trim().is_empty() {
+            &self.to
+        } else {
+            &self.last
+        }
+    }
+}
+
+/// A tour of a company line on the day.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+pub struct TourOfDay {
+    /// The company line (its timetable name) and the number shown.
+    pub line: String,
+    pub number: String,
+    pub tour: String,
+    pub ai_group: String,
+    pub trips: Vec<PlannedTrip>,
+    /// Its line is not in service when it begins (not planned yet, or from later on): shown
+    /// on the planning to be planned, but neither run nor penalised (`in_service`).
+    #[serde(default)]
+    pub unplanned: bool,
+    /// Where the player cut it into duties in the scheduling studio: the trips (indices) a
+    /// new duty begins with. None: cut automatically (`split_tour`).
+    #[serde(default)]
+    pub cuts: Option<Vec<usize>>,
+}
+
+impl TourOfDay {
+    pub fn from(&self) -> i32 {
+        self.trips.first().map(|t| t.dep).unwrap_or(0)
+    }
+
+    pub fn to(&self) -> i32 {
+        self.trips.iter().map(|t| t.arr).max().unwrap_or(0)
+    }
+
+    pub fn km(&self) -> f64 {
+        self.trips.iter().map(|t| t.km).sum()
+    }
+
+    /// Whether it runs (some of) the timetable's tour `n`: a trip of that tour in it - a block
+    /// the studio laid out may hold trips of several - or, its trips not knowing their tour,
+    /// it is that tour.
+    pub fn runs_tour(&self, n: &str) -> bool {
+        let n = n.trim();
+        if self.trips.iter().any(|x| !x.origin.is_empty()) {
+            self.trips.iter().any(|x| x.origin.trim() == n)
+        } else {
+            self.tour.trim() == n
+        }
+    }
+
+    /// The company line trip `x` (one of its) is of: its own, else the block's.
+    pub fn line_of<'a>(&'a self, x: &'a PlannedTrip) -> &'a str {
+        if x.of_line.trim().is_empty() {
+            &self.line
+        } else {
+            &x.of_line
+        }
+    }
+
+    /// The company lines its trips with passengers are of, its own first: more than one where
+    /// the bus interlines.
+    pub fn lines(&self) -> Vec<&str> {
+        let mut out: Vec<&str> = vec![self.line.as_str()];
+        for x in self.trips.iter().filter(|x| x.counts()) {
+            let l = self.line_of(x);
+            if !out.iter().any(|o| o.eq_ignore_ascii_case(l)) {
+                out.push(l);
+            }
+        }
+        out
+    }
+
+    /// Whether it runs trips of another line than its own (interlining).
+    pub fn interlined(&self) -> bool {
+        self.lines().len() > 1
+    }
+
+    /// Whether it runs (some of) tour `n` of the line a report names by `l` (its name or a
+    /// number its displays show): `runs_tour`, the trip's own line where the bus interlines.
+    pub fn runs_tour_of(&self, l: &str, n: &str) -> bool {
+        let is = |a: &str, b: &str| a.trim().eq_ignore_ascii_case(b.trim());
+        if !self.interlined() {
+            return (is(&self.number, l) || is(&self.line, l) || self.trips.iter().any(|x| is(&x.line, l))) && self.runs_tour(n);
+        }
+        self.trips.iter().any(|x| x.origin.trim() == n.trim() && (is(&x.line, l) || is(self.line_of(x), l) || (is(self.line_of(x), &self.line) && is(&self.number, l))))
+    }
+
+    /// The bus size its depot group asks for, if it names one (`vormVanDepot`).
+    pub fn wants(&self) -> Option<BusSize> {
+        wants_size(&self.ai_group)
+    }
+}
+
+/// The bus size an AI group or depot name asks for ("Gelenkbus", "Solo", "DD").
+pub fn wants_size(group: &str) -> Option<BusSize> {
+    let g = group.to_lowercase();
+    let word = |w: &str| g.split(|c: char| !c.is_alphanumeric()).any(|x| x == w);
+    if g.contains("gelenk") || g.contains("artic") || g.contains("geleed") {
+        Some(BusSize::Articulated)
+    } else if g.contains("doppeldeck") || g.contains("double") || g.contains("dubbeldek") || word("dd") {
+        Some(BusSize::Double)
+    } else if g.contains("midi") || g.contains("kurz") {
+        Some(BusSize::Midi)
+    } else if g.contains("solo") || g.contains("standard") {
+        Some(BusSize::Solo)
+    } else {
+        None
+    }
+}
+
+/// The line runs at `moment`: every line of the company runs as planned.
+pub fn in_service(_l: &CompanyLine, _moment: i64) -> bool {
+    true
+}
+
+/// The company line a trip report names (by the number its displays showed).
+pub fn line_of_number<'a>(c: &'a Company, number: &str) -> Option<&'a CompanyLine> {
+    let n = number.trim();
+    if n.is_empty() {
+        return None;
+    }
+    c.lines.iter().find(|l| l.number.eq_ignore_ascii_case(n) || l.numbers.iter().any(|x| x.eq_ignore_ascii_case(n)) || l.name.eq_ignore_ascii_case(n))
+}
+
+/// The tours of the company's lines on `date` (`lines` the timetable read for it): those that
+/// run that day, their trips in order of departure, each marked `unplanned` when its line is
+/// not in service as it begins - as the player laid them out in the scheduling studio, where
+/// he did (`studio::arrange`; the easy mode keeps the timetable's). The one source of a day's
+/// tours - the Lines page, the planning, the clock and the day's close all take them from
+/// here.
+pub fn tours_of_day(c: &Company, lines: &[LineInfo], date: &str) -> Vec<TourOfDay> {
+    tours_of_slot(c, lines, date, super::plandays::slot_of(c, date))
+}
+
+/// The tours of `date` laid out by the plan of slot `slot` (`plandays`: a weekday's, or one of
+/// single dates) - `tours_of_day` with the date's own.
+pub fn tours_of_slot(c: &Company, lines: &[LineInfo], date: &str, slot: u8) -> Vec<TourOfDay> {
+    let mut out = timetable_tours(c, lines);
+    let cuts = super::studio::arrange(c, slot, &mut out, lines);
+    finish_tours(c, out, date, cuts)
+}
+
+/// The tours as the timetable has them, before the studio (`tours_of_day`): what "Optimise"
+/// proposes, and what an edit that no longer fits falls back to.
+pub fn automatic_tours_of_day(c: &Company, lines: &[LineInfo], date: &str) -> Vec<TourOfDay> {
+    finish_tours(c, timetable_tours(c, lines), date, Vec::new())
+}
+
+/// The own lines' depot runs added, the studio's cuts found (`cuts`: a tour's index and the
+/// trips its duties begin with), each tour marked `unplanned` or not, in order.
+fn finish_tours(c: &Company, mut out: Vec<TourOfDay>, date: &str, cuts: Vec<(usize, Vec<super::studio::TripRef>)>) -> Vec<TourOfDay> {
+    // (the own lines' tours with their depot runs: their timetable has none)
+    super::ownline::add_depot_runs(c, &mut out);
+    super::studio::resolve_cuts(&mut out, &cuts);
+    let _ = date;
+    for t in out.iter_mut() {
+        t.unplanned = !c.lines.iter().any(|l| l.name.eq_ignore_ascii_case(&t.line));
+    }
+    out.sort_by_key(|t| t.from());
+    out
+}
+
+/// The company lines' tours as the timetable has them (no depot runs added, not sorted).
+pub(crate) fn timetable_tours(c: &Company, lines: &[LineInfo]) -> Vec<TourOfDay> {
+    let mut out = Vec::new();
+    for cl in &c.lines {
+        let Some(line) = lines.iter().find(|l| l.name.eq_ignore_ascii_case(&cl.name)) else {
+            continue;
+        };
+        for t in line.tours.iter().filter(|t| t.runs) {
+            let mut trips: Vec<PlannedTrip> = t
+                .trips
+                .iter()
+                .map(|x| PlannedTrip {
+                    name: x.name.clone(),
+                    line: if x.line.trim().is_empty() { cl.number.clone() } else { x.line.trim().to_string() },
+                    from: x.from.clone(),
+                    to: x.terminus.clone(),
+                    dep: (x.departure / 60.0).round() as i32,
+                    arr: (x.arrival / 60.0).round() as i32,
+                    km: x.km,
+                    stops: x.stops.len() as u32,
+                    empty: x.stops.len() < 2,
+                    origin: t.number.clone(),
+                    last: x.stops.last().map(|s| s.name.clone()).unwrap_or_default(),
+                    part: None,
+                    of_line: cl.name.clone(),
+                })
+                .collect();
+            trips.sort_by_key(|x| x.dep);
+            if trips.iter().any(PlannedTrip::counts) {
+                out.push(TourOfDay { line: cl.name.clone(), number: cl.number.clone(), tour: t.number.clone(), ai_group: t.ai_group.clone(), trips, unplanned: false, cuts: None });
+            }
+        }
+    }
+    out
+}
+
+/// The trips of `date` on no bus (RosterFlow's stack, `rosterflow::stack`): their line and the
+/// trip. The easy mode keeps the timetable's tours, every trip on a bus.
+pub fn off_every_bus(c: &Company, lines: &[LineInfo], date: &str) -> Vec<(String, PlannedTrip)> {
+    super::rosterflow::stack(c, lines, super::plan::weekday_of(date))
+}
+
+/// The tours that run: those of lines in service.
+pub fn in_service_only(tours: Vec<TourOfDay>) -> Vec<TourOfDay> {
+    tours.into_iter().filter(|t| !t.unplanned).collect()
+}
+
+/// What a line asks of the company on a day, against what it has.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Needs {
+    /// Buses at the line's busiest, and of them how many of each size its tours ask for
+    /// (a solo bus where they name none).
+    pub buses: usize,
+    pub sizes: Vec<(BusSize, usize)>,
+    /// Its duties, and about the drivers they need: one and a half a duty (a driver works
+    /// five days a week and has holidays and ill days).
+    pub duties: usize,
+    pub drivers: usize,
+    /// The company's buses and drivers, and what its lines in service take of them already.
+    pub have_buses: usize,
+    pub have_drivers: usize,
+    pub busy_buses: usize,
+    pub busy_drivers: usize,
+}
+
+impl Needs {
+    /// Buses and drivers the company lacks for the line beside its others.
+    pub fn short(&self) -> (usize, usize) {
+        ((self.buses + self.busy_buses).saturating_sub(self.have_buses), (self.drivers + self.busy_drivers).saturating_sub(self.have_drivers))
+    }
+}
+
+/// The most tours running at once.
+fn peak(tours: &[&TourOfDay]) -> usize {
+    tours.iter().map(|t| tours.iter().filter(|x| x.from() <= t.from() && t.from() < x.to()).count()).max().unwrap_or(0)
+}
+
+/// About the drivers `duties` duties a day need.
+pub fn drivers_for(duties: usize) -> usize {
+    (duties as f64 * 1.5).ceil() as usize
+}
+
+/// What `line` asks of the company on `date` (`all` the timetable of that day, for what its
+/// other lines take already).
+pub fn needs(c: &Company, line: &LineInfo, all: &[LineInfo], date: &str) -> Needs {
+    let mut probe = c.clone();
+    probe.lines.retain(|l| l.name.eq_ignore_ascii_case(&line.name));
+    if probe.lines.is_empty() {
+        probe.lines.push(CompanyLine { name: line.name.clone(), number: line.name.clone(), ..Default::default() });
+    }
+    let mine = tours_of_day(&probe, std::slice::from_ref(line), date);
+    let refs: Vec<&TourOfDay> = mine.iter().collect();
+    let mut sizes: Vec<(BusSize, usize)> = Vec::new();
+    for size in [BusSize::Midi, BusSize::Solo, BusSize::Articulated, BusSize::Double] {
+        let of: Vec<&TourOfDay> = mine.iter().filter(|t| super::ownline::wanted(&probe, t).unwrap_or(BusSize::Solo) == size).collect();
+        let n = peak(&of);
+        if n > 0 {
+            sizes.push((size, n));
+        }
+    }
+    let duties: usize = mine.iter().map(|t| duties_of(t).len()).sum();
+    let others: Vec<TourOfDay> = in_service_only(tours_of_day(c, all, date)).into_iter().filter(|t| !t.line.eq_ignore_ascii_case(&line.name)).collect();
+    let other_refs: Vec<&TourOfDay> = others.iter().collect();
+    Needs {
+        buses: peak(&refs),
+        sizes,
+        duties,
+        drivers: drivers_for(duties),
+        have_buses: c.fleet.iter().filter(|v| v.held_on(date)).count(),
+        have_drivers: c.staff.iter().filter(|e| super::staff::drives(e) && e.employed_on(date) && e.notice_until.is_none()).count(),
+        busy_buses: peak(&other_refs),
+        busy_drivers: drivers_for(others.iter().map(|t| duties_of(t).len()).sum()),
+    }
+}
+
+/// What the timetable gives each company line on that day: tours and kilometres (kept with
+/// the line for the pages).
+pub fn refresh_lines(c: &mut Company, lines: &[LineInfo]) {
+    for cl in c.lines.iter_mut() {
+        if let Some(l) = lines.iter().find(|l| l.name.eq_ignore_ascii_case(&cl.name)) {
+            let runs: Vec<_> = l.tours.iter().filter(|t| t.runs).collect();
+            cl.tours = runs.len() as u32;
+            cl.km = runs.iter().flat_map(|t| t.trips.iter()).map(|t| t.km).sum();
+        }
+    }
+}
+
+/// A tour cut into duties of at most `max` minutes (`knipOmloop`): as many parts as needed,
+/// the cuts as near an even split as can be, only before a trip with passengers after the bus
+/// stood at least `SPLIT_PAUSE` minutes (there a driver can take over). Where there is no
+/// such place it is not cut; a part without a trip with passengers goes into the one before.
+pub fn split_tour(trips: &[PlannedTrip], max: i32) -> Vec<std::ops::Range<usize>> {
+    if trips.is_empty() {
+        return Vec::new();
+    }
+    let begin = trips[0].dep;
+    let span = trips.iter().map(|t| t.arr).max().unwrap_or(begin) - begin;
+    let parts = ((span as f64 / max as f64).ceil() as i32).max(1);
+    let mut cuts: Vec<usize> = Vec::new();
+    for k in 1..parts {
+        let ideal = begin as f64 + span as f64 * k as f64 / parts as f64;
+        let mut best: Option<usize> = None;
+        for i in 1..trips.len() {
+            if i <= cuts.last().copied().unwrap_or(0) {
+                continue;
+            }
+            if !trips[i].counts() || trips[i].dep - trips[i - 1].arr < SPLIT_PAUSE {
+                continue;
+            }
+            if best.is_none_or(|b| (trips[i].dep as f64 - ideal).abs() < (trips[b].dep as f64 - ideal).abs()) {
+                best = Some(i);
+            }
+        }
+        if let Some(b) = best {
+            cuts.push(b);
+        }
+    }
+    let mut pieces: Vec<std::ops::Range<usize>> = Vec::new();
+    let mut from = 0;
+    for cut in cuts.into_iter().chain(std::iter::once(trips.len())) {
+        pieces.push(from..cut);
+        from = cut;
+    }
+    let mut out: Vec<std::ops::Range<usize>> = Vec::new();
+    for p in pieces {
+        let counts = trips[p.clone()].iter().any(PlannedTrip::counts);
+        match out.last_mut() {
+            Some(last) if !counts => last.end = p.end,
+            _ => out.push(p),
+        }
+    }
+    if out.len() > 1 && !trips[out[0].clone()].iter().any(PlannedTrip::counts) {
+        let first = out.remove(0);
+        out[0].start = first.start;
+    }
+    out
+}
+
+/// The duties of a tour: where the player cut it in the scheduling studio, else cut
+/// automatically (`DUTY_MAX`).
+pub fn duties_of(t: &TourOfDay) -> Vec<std::ops::Range<usize>> {
+    match &t.cuts {
+        Some(cuts) if !t.trips.is_empty() => {
+            let mut at: Vec<usize> = cuts.iter().copied().filter(|&k| k > 0 && k < t.trips.len()).collect();
+            at.sort_unstable();
+            at.dedup();
+            let mut out = Vec::new();
+            let mut from = 0;
+            for k in at.into_iter().chain(std::iter::once(t.trips.len())) {
+                out.push(from..k);
+                from = k;
+            }
+            out
+        }
+        _ => split_tour(&t.trips, DUTY_MAX),
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use super::*;
+
+    pub fn trip(dep: i32, arr: i32, stops: u32) -> PlannedTrip {
+        PlannedTrip {
+            name: format!("t{dep}"),
+            line: "5".into(),
+            from: "A".into(),
+            to: "B".into(),
+            dep,
+            arr,
+            km: (arr - dep) as f64 * 0.3,
+            stops,
+            empty: false,
+            origin: String::new(),
+            last: String::new(),
+            part: None,
+            of_line: String::new(),
+        }
+    }
+
+    #[test]
+    fn a_long_tour_is_cut_into_duties() {
+        // 5:00 to 23:00 in trips of 50 minutes with 10 minutes' layover: two parts
+        let trips: Vec<PlannedTrip> = (0..18).map(|k| trip(300 + k * 60, 350 + k * 60, 12)).collect();
+        let d = split_tour(&trips, DUTY_MAX);
+        assert_eq!(d.len(), 2);
+        assert_eq!(d[0].start, 0);
+        assert_eq!(d[1].end, 18);
+        // the cut lies near the middle (14:00)
+        assert!((trips[d[1].start].dep - 14 * 60).abs() <= 60);
+        // a short tour stays whole
+        assert_eq!(split_tour(&trips[..5], DUTY_MAX), vec![0..5]);
+        // no cut where the bus does not stand: one long duty
+        let tight: Vec<PlannedTrip> = (0..12).map(|k| trip(300 + k * 60, 360 + k * 60, 12)).collect();
+        assert_eq!(split_tour(&tight, DUTY_MAX), vec![0..12]);
+        // a depot run at the end goes with the last part
+        let mut with_run = trips.clone();
+        with_run.push(trip(1390, 1400, 2));
+        let d = split_tour(&with_run, DUTY_MAX);
+        assert_eq!(d.last().unwrap().end, 19);
+        assert!(split_tour(&[], DUTY_MAX).is_empty());
+    }
+
+    #[test]
+    fn a_group_name_asks_for_a_size() {
+        assert_eq!(wants_size("Gelenkbus"), Some(BusSize::Articulated));
+        assert_eq!(wants_size("Solo_Diesel"), Some(BusSize::Solo));
+        assert_eq!(wants_size("double"), Some(BusSize::Double));
+        assert_eq!(wants_size("midi"), Some(BusSize::Midi));
+        assert_eq!(wants_size("BVG DD"), Some(BusSize::Double));
+        assert_eq!(wants_size("Linie 5"), None);
+    }
+}

@@ -1,0 +1,13 @@
+[package]
+name = "rosterflow-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "RosterFlow's domain: the bus company's network (stops, lines, timetables), its fleet and staff, and the planning engine (blocks, duties, rosters, Optimise)"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+chrono.workspace = true

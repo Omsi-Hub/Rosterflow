@@ -1,0 +1,5 @@
+/target
+/app/gen
+node_modules
+.DS_Store
+*.swp
