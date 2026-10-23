@@ -106,6 +106,13 @@ fn prune_backups(dir: &Path) {
     }
 }
 
+/// A copy of `c` as it is now kept beside the day's (`<day>-<HHMMSS>`): before it is put back as
+/// an older copy had it.
+pub fn keep_copy(c: &Company) -> Result<()> {
+    let stamp = chrono::Local::now().format("%Y-%m-%d-%H%M%S");
+    write_whole(&data_dir().join("backups").join(&c.id).join(format!("{stamp}.json")), &to_text(c)?)
+}
+
 /// Company `id` read.
 pub fn load(id: &str) -> Result<Company> {
     let path = path_of(id).context("no such company")?;

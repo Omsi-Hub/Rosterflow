@@ -1,0 +1,12 @@
+[package]
+name = "rosterflow-dev"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "RosterFlow in a browser, for development and the end-to-end checks: serves ui/ and answers the page's commands at /api/call"
+publish = false
+
+[dependencies]
+rosterflow-api.workspace = true
+serde_json.workspace = true

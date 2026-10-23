@@ -31,9 +31,10 @@ const LINES: [(&str, &str, &[&str], &[f32], f32, f32, f32); 3] = [
     ("3", "#43a047", &["1014", "1013", "1003", "1007", "1008"], &[0.0, 4.0, 11.0, 16.0, 21.0], 30.0, 6.0 * 60.0 + 30.0, 20.0 * 60.0),
 ];
 
-const DRIVERS: [&str; 18] = [
+const DRIVERS: [&str; 30] = [
     "Anouk de Vries", "Bram Jansen", "Chantal Bakker", "Dennis Visser", "Esra Yilmaz", "Frank Smit", "Gerda Mulder", "Hamza El Amrani", "Iris de Boer", "Jeroen Peters",
-    "Kim Hendriks", "Lars van Dijk", "Mila Bos", "Noah Vermeulen", "Olga Kowalska", "Pieter de Wit", "Rachid Bouzid", "Sanne Dekker",
+    "Kim Hendriks", "Lars van Dijk", "Mila Bos", "Noah Vermeulen", "Olga Kowalska", "Pieter de Wit", "Rachid Bouzid", "Sanne Dekker", "Thijs Brouwer", "Ufuk Demir",
+    "Vera Kok", "Wim Jacobs", "Xander de Graaf", "Yara Mertens", "Zoë Willems", "Ahmed Benali", "Bas Koster", "Carmen Ruiz", "Daan Prins", "Eva Huisman",
 ];
 
 /// `c` given the example network, fleet and staff.

@@ -43,6 +43,10 @@ pub fn call(cmd: &str, args: &Value, p: &dyn Platform) -> Answer {
         "app_backups" => Ok(company::with(|s| json!(s.company.as_ref().map(|c| store::backups(&c.id)).unwrap_or_default()))),
         "app_restore" => restore(&s_arg(args, "day")),
         "app_summary" => Ok(company::with(summary)),
+        "app_shell" => Ok(company::with(|s| match &s.company {
+            Some(c) => json!({ "gen": s.generation, "id": c.id, "name": c.name, "short": c.short, "colours": c.colours, "money": crate::company::words::money_json(), "notes": s.take_notes() }),
+            None => json!({ "gen": s.generation, "id": null }),
+        })),
         "app_rename" => company::with(|s| {
             let name = s_arg(args, "name");
             if name.is_empty() {
@@ -167,12 +171,13 @@ fn import(args: &Value, p: &dyn Platform) -> Answer {
     Ok(json!({ "id": id }))
 }
 
-/// The open company put back as its copy of `day` had it (the company as it is now kept as
-/// today's copy first).
+/// The open company put back as its copy of `day` had it (the company as it is now kept as a
+/// copy of its own first).
 fn restore(day: &str) -> Answer {
     company::with(|s| {
         let c = s.company.as_ref().ok_or_else(|| tr("No company is open."))?;
         let back = store::backup(&c.id, day).map_err(|e| format!("{e:#}"))?;
+        store::keep_copy(c).map_err(|e| format!("{e:#}"))?;
         s.company = Some(back);
         company::reload_timetable(s);
         let c = s.company.clone().unwrap();

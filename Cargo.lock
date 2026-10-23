@@ -213,6 +213,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "rosterflow-dev"
+version = "1.0.0"
+dependencies = [
+ "rosterflow-api",
+ "serde_json",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"

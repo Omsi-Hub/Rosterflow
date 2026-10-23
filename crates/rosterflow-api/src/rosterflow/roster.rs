@@ -305,13 +305,9 @@ pub(super) fn run(s: &mut Session, r: &mut Rf, cmd: &str, args: &Value) -> Optio
     Some(match cmd {
         "rf_roster" => view(s, r, args),
         "rf_roster_act" => act(s, r, args),
+        "rf_roster_card" => card(s, args),
         _ => return None,
     })
-}
-
-/// The roster and the day's choices as a fingerprint's text (`live`: changed under a planner).
-pub(super) fn mark(c: &Company) -> String {
-    serde_json::to_string(&(&c.planning.week, &c.planning.date, &c.planning.fills, given_of(c))).unwrap_or_default()
 }
 
 /// The plan of a day (`company::plan_of`).
@@ -1331,6 +1327,24 @@ fn act_on(s: &mut Session, r: &mut Rf, args: &Value) -> Answer {
 }
 
 // --- the duty card ------------------------------------------------------------------------------------
+
+/// The duty card of duty `duty` of tour `tour` of line `line` on `date` (`rf_roster_card`), with
+/// the company's name and colours for its head.
+fn card(s: &mut Session, args: &Value) -> Answer {
+    let date = args.get("date").and_then(Value::as_str).unwrap_or("").to_string();
+    let line = args.get("line").and_then(Value::as_str).unwrap_or("").to_string();
+    let tour = args.get("tour").and_then(Value::as_str).unwrap_or("").to_string();
+    let k = usize_arg(args, "duty");
+    let Some(Ok(p)) = company::plan_of(s, &date) else { return Err(tr("This duty is no longer in the roster.")) };
+    let c = s.company.as_ref().ok_or_else(|| tr("This duty is no longer in the roster."))?;
+    let ti = p.tours.iter().position(|t| t.tour.line.eq_ignore_ascii_case(&line) && t.tour.tour == tour).filter(|&ti| k < p.tours[ti].duties.len());
+    let Some(ti) = ti else { return Err(tr("This duty is no longer in the roster.")) };
+    let mut v = duty_card(c, &p, ti, k);
+    v["company"] = json!(c.name);
+    v["short"] = json!(c.short);
+    v["colours"] = json!(c.colours);
+    Ok(v)
+}
 
 /// What the driver's duty card says of duty `k` of tour `ti`: sign-on, the trips with their
 /// times and stops, the bus, sign-off (printed with the roster).
