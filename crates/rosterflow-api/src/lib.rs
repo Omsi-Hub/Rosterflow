@@ -5,6 +5,8 @@
 
 pub mod app;
 pub mod company;
+pub mod csv;
+pub mod demo;
 pub mod files;
 pub mod locales;
 pub mod master;
