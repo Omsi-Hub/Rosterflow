@@ -69,16 +69,32 @@ jobs:
             exit 1
           fi
 
-      - name: Build and upload to the draft release
-        uses: tauri-apps/tauri-action@v0
+      # (Tauri signs as soon as APPLE_CERTIFICATE is in the environment, even empty: the Apple
+      # secrets are handed on only when they are set)
+      - name: Apple signing, when set up
+        if: runner.os == 'macOS'
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          if [ -n "$APPLE_CERTIFICATE" ]; then
+            for k in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+              v="${!k}"
+              [ -n "$v" ] && { echo "$k<<EOF_$k"; echo "$v"; echo "EOF_$k"; } >> "$GITHUB_ENV"
+            done
+          else
+            echo "::notice::No Apple signing secrets: the macOS app is built unsigned."
+          fi
+
+      - name: Build and upload to the draft release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: app
           tauriScript: npx --yes @tauri-apps/cli@2
